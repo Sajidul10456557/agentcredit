@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgentCredit</title>
+<style>
+  :root {
+    --yellow: #F0B90B;
+    --yellow-dark: #c99a07;
+    --black: #0b0e11;
+    --panel: #1e2329;
+    --text: #eaecef;
+    --muted: #848e9c;
+    --red: #f6465d;
+    --green: #0ecb81;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--black);
+    color: var(--text);
+    font-family: Arial, Helvetica, sans-serif;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 24px 16px 48px; }
+
+  /* ---------- Header ---------- */
+  header { text-align: center; margin-bottom: 20px; }
+  h1 { margin: 12px 0 4px; color: var(--yellow); font-size: 32px; letter-spacing: 1px; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0; }
+
+  /* ---------- CSS candle mascot ---------- */
+  .candle { position: relative; width: 70px; height: 120px; margin: 0 auto; }
+  .flame {
+    position: absolute; left: 50%; top: 0; width: 22px; height: 34px;
+    margin-left: -11px;
+    background: radial-gradient(circle at 50% 70%, #fff6c9, var(--yellow) 60%, #ff9d00);
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    box-shadow: 0 0 20px 8px rgba(240,185,11,0.6);
+    animation: flicker 1.2s infinite ease-in-out;
+    transform-origin: 50% 100%;
+  }
+  .wax {
+    position: absolute; left: 50%; bottom: 0; width: 44px; height: 78px;
+    margin-left: -22px;
+    background: linear-gradient(90deg, #f7d56a, var(--yellow));
+    border-radius: 10px 10px 14px 14px;
+  }
+  .eye {
+    position: absolute; top: 22px; width: 7px; height: 9px;
+    background: var(--black); border-radius: 50%;
+  }
+  .eye.l { left: 11px; } .eye.r { right: 11px; }
+  .smile {
+    position: absolute; left: 50%; top: 38px; width: 16px; height: 8px;
+    margin-left: -8px; border-bottom: 3px solid var(--black);
+    border-radius: 0 0 16px 16px;
+  }
+  @keyframes flicker {
+    0%,100% { transform: scale(1) rotate(-2deg); }
+    50% { transform: scale(1.08, 1.12) rotate(2deg); }
+  }
+
+  /* ---------- Cards, buttons ---------- */
+  .card { background: var(--panel); border-radius: 14px; padding: 18px; margin-top: 16px; }
+  button {
+    background: var(--yellow); color: var(--black); border: 0; border-radius: 10px;
+    padding: 13px 18px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%;
+  }
+  button:hover { background: var(--yellow-dark); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .label { color: var(--muted); font-size: 13px; }
+  .value { font-size: 14px; word-break: break-all; }
+
+  /* ---------- Demo toggle ---------- */
+  .switch { position: relative; width: 50px; height: 28px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute; inset: 0; background: #474d57; border-radius: 28px;
+    cursor: pointer; transition: 0.2s;
+  }
+  .slider::before {
+    content: ""; position: absolute; width: 22px; height: 22px; left: 3px; top: 3px;
+    background: #fff; border-radius: 50%; transition: 0.2s;
+  }
+  .switch input:checked + .slider { background: var(--yellow); }
+  .switch input:checked + .slider::before { transform: translateX(22px); }
+
+  /* ---------- Messages ---------- */
+  .msg { margin-top: 14px; padding: 12px; border-radius: 10px; font-size: 14px; display: none; }
+  .msg.show { display: block; }
+  .msg.error { background: rgba(246,70,93,0.15); color: var(--red); }
+  .msg.ok { background: rgba(14,203,129,0.15); color: var(--green); }
+  .msg.info { background: rgba(240,185,11,0.15); color: var(--yellow); }
+  .badge {
+    display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px;
+    font-weight: bold; background: var(--yellow); color: var(--black);
+  }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="candle">
+      <div class="flame"></div>
+      <div class="wax">
+        <div class="eye l"></div><div class="eye r"></div><div class="smile"></div>
+      </div>
+    </div>
+    <h1>AgentCredit</h1>
+    <p class="sub">Sybil-Proof Verified Credit / Grant powered by Agent ID</p>
+  </header>
+
+  <!-- Demo mode toggle -->
+  <div class="card">
+    <div class="row">
+      <div>
+        <strong>Demo Mode</strong>
+        <div class="label">Try the flow with a sample name.ai ID. No real BNB or gas used.</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="demoToggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div id="demoBadge" class="hidden" style="margin-top:10px;"><span class="badge">DEMO MODE ON</span></div>
+  </div>
+
+  <!-- Wallet card -->
+  <div class="card">
+    <button id="connectBtn">Connect Wallet</button>
+
+    <div id="walletInfo" class="hidden" style="margin-top:16px;">
+      <div class="label">Account</div>
+      <div class="value" id="accountText">-</div>
+      <div class="label" style="margin-top:10px;">Network</div>
+      <div class="value" id="networkText">-</div>
+    </div>
+
+    <div id="message" class="msg"></div>
+  </div>
+
+</div>
+
+<script>
+  // ------------------- Settings -------------------
+  const BSC_CHAIN_ID_HEX = "0x38";   // 56 in hex = BNB Smart Chain Mainnet
+  const BSC_CHAIN_ID = 56;
+  const DEMO_ACCOUNT = "0xDEM0...0000 (sample)";
+  const DEMO_AGENT_ID = "alice.ai";
+
+  // ------------------- Find the wallet -------------------
+  // Different wallets expose themselves differently, so we check all common ways.
+  const foundWallets = [];
+  window.addEventListener("eip6963:announceProvider", (e) => foundWallets.push(e.detail));
+  window.dispatchEvent(new Event("eip6963:requestProvider"));
+  let eth = null; // the wallet we will use
+
+  function getProvider() {
+    if (window.ethereum) return window.ethereum;
+    if (window.binancew3w && window.binancew3w.ethereum) return window.binancew3w.ethereum;
+    const binance = foundWallets.find(w => /binance/i.test(w.info.name));
+    if (binance) return binance.provider;
+    if (foundWallets.length) return foundWallets[0].provider;
+    return null;
+  }
+
+  // ------------------- Page elements -------------------
+  const connectBtn = document.getElementById("connectBtn");
+  const demoToggle = document.getElementById("demoToggle");
+  const demoBadge = document.getElementById("demoBadge");
+  const walletInfo = document.getElementById("walletInfo");
+  const accountText = document.getElementById("accountText");
+  const networkText = document.getElementById("networkText");
+  const messageBox = document.getElementById("message");
+
+  // Show a message box: type = "error" | "ok" | "info"
+  function showMessage(text, type) {
+    messageBox.textContent = text;
+    messageBox.className = "msg show " + type;
+  }
+  function clearMessage() { messageBox.className = "msg"; }
+
+  function shorten(addr) { return addr.slice(0, 6) + "..." + addr.slice(-4); }
+
+  // ------------------- Demo Mode -------------------
+  demoToggle.addEventListener("change", () => {
+    clearMessage();
+    walletInfo.classList.add("hidden");
+    if (demoToggle.checked) {
+      demoBadge.classList.remove("hidden");
+      connectBtn.textContent = "Connect Demo Wallet";
+    } else {
+      demoBadge.classList.add("hidden");
+      connectBtn.textContent = "Connect Wallet";
+    }
+  });
+
+  // ------------------- Connect Wallet -------------------
+  connectBtn.addEventListener("click", async () => {
+    clearMessage();
+
+    // Demo path: no real wallet needed
+    if (demoToggle.checked) {
+      accountText.textContent = DEMO_ACCOUNT;
+      networkText.textContent = "BNB Smart Chain Mainnet (demo, no gas)";
+      walletInfo.classList.remove("hidden");
+      showMessage("Demo connected. Sample Agent ID: " + DEMO_AGENT_ID, "ok");
+      return;
+    }
+
+    // Real path: need a wallet
+    eth = getProvider();
+    if (!eth) {
+      showMessage("No wallet found. Please install Binance Wallet or MetaMask, then refresh this page.", "error");
+      return;
+    }
+
+    try {
+      showMessage("Waiting for wallet approval... Check your wallet popup or click the wallet icon.", "info");
+      const accounts = await eth.request({ method: "eth_requestAccounts" });
+      accountText.textContent = accounts[0];
+      walletInfo.classList.remove("hidden");
+      await checkNetwork();
+    } catch (err) {
+      if (err && err.code === 4001) {
+        showMessage("You rejected the connection request.", "error");
+      } else {
+        showMessage("Could not connect: " + (err.message || err), "error");
+      }
+    }
+  });
+
+  // ------------------- Chain ID 56 check -------------------
+  async function checkNetwork() {
+    const chainIdHex = await eth.request({ method: "eth_chainId" });
+    const chainId = parseInt(chainIdHex, 16);
+
+    if (chainId === BSC_CHAIN_ID) {
+      networkText.textContent = "BNB Smart Chain Mainnet (56)";
+      showMessage("Connected to the correct network. Real BNB is used for gas fees.", "ok");
+      return true;
+    }
+
+    networkText.textContent = "Wrong network (Chain ID " + chainId + ")";
+    showMessage("Wrong network. Please switch to BNB Smart Chain Mainnet (Chain ID 56).", "error");
+
+    // Ask the wallet to switch automatically
+    try {
+      await eth.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: BSC_CHAIN_ID_HEX }]
+      });
+    } catch (switchErr) {
+      // 4902 = network not added to the wallet yet
+      if (switchErr.code === 4902) {
+        try {
+          await eth.request({
+            method: "wallet_addEthereumChain",
+            params: [{
+              chainId: BSC_CHAIN_ID_HEX,
+              chainName: "BNB Smart Chain Mainnet",
+              nativeCurrency: { name: "BNB", symbol: "BNB", decimals: 18 },
+              rpcUrls: ["https://bsc-dataseed.binance.org/"],
+              blockExplorerUrls: ["https://bscscan.com"]
+            }]
+          });
+        } catch (addErr) {
+          showMessage("Could not add BNB Smart Chain. Please add it manually in your wallet.", "error");
+        }
+      }
+    }
+    return false;
+  }
+
+  // ------------------- Wallet events -------------------
+  setTimeout(() => {
+    const w = getProvider();
+    if (!w || !w.on) return;
+    // Re-check when the user changes network
+    w.on("chainChanged", () => window.location.reload());
+    // Update when the user changes account
+    w.on("accountsChanged", (accounts) => {
+      if (accounts.length === 0) {
+        walletInfo.classList.add("hidden");
+        showMessage("Wallet disconnected.", "info");
+      } else {
+        accountText.textContent = accounts[0];
+      }
+    });
+  }, 500);
+</script>
+</body>
+</html>
