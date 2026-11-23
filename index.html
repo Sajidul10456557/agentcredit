@@ -6,187 +6,91 @@
 <title>AgentCredit</title>
 <style>
   :root {
-    --yellow: #F0B90B;
-    --yellow-dark: #c99a07;
-    --black: #0b0e11;
-    --panel: #1e2329;
-    --text: #eaecef;
-    --muted: #848e9c;
-    --red: #f6465d;
-    --green: #0ecb81;
+    --yellow: #F0B90B; --yellow-dark: #c99a07; --black: #0b0e11; --panel: #1e2329;
+    --text: #eaecef; --muted: #848e9c; --red: #f6465d; --green: #0ecb81;
   }
   * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: var(--black);
-    color: var(--text);
-    font-family: Arial, Helvetica, sans-serif;
-    min-height: 100vh;
-  }
+  body { margin: 0; background: var(--black); color: var(--text); font-family: Arial, Helvetica, sans-serif; min-height: 100vh; }
   .wrap { max-width: 560px; margin: 0 auto; padding: 24px 16px 48px; }
-
-  /* ---------- Header ---------- */
   header { text-align: center; margin-bottom: 20px; }
   h1 { margin: 12px 0 4px; color: var(--yellow); font-size: 32px; letter-spacing: 1px; }
   .sub { color: var(--muted); font-size: 14px; margin: 0; }
 
-  /* ---------- CSS candle mascot ---------- */
+  /* CSS candle mascot */
   .candle { position: relative; width: 70px; height: 120px; margin: 0 auto; }
-  .flame {
-    position: absolute; left: 50%; top: 0; width: 22px; height: 34px;
-    margin-left: -11px;
+  .flame { position: absolute; left: 50%; top: 0; width: 22px; height: 34px; margin-left: -11px;
     background: radial-gradient(circle at 50% 70%, #fff6c9, var(--yellow) 60%, #ff9d00);
-    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-    box-shadow: 0 0 20px 8px rgba(240,185,11,0.6);
-    animation: flicker 1.2s infinite ease-in-out;
-    transform-origin: 50% 100%;
-  }
-  .wax {
-    position: absolute; left: 50%; bottom: 0; width: 44px; height: 78px;
-    margin-left: -22px;
-    background: linear-gradient(90deg, #f7d56a, var(--yellow));
-    border-radius: 10px 10px 14px 14px;
-  }
-  .eye {
-    position: absolute; top: 22px; width: 7px; height: 9px;
-    background: var(--black); border-radius: 50%;
-  }
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; box-shadow: 0 0 20px 8px rgba(240,185,11,0.6);
+    animation: flicker 1.2s infinite ease-in-out; transform-origin: 50% 100%; }
+  .wax { position: absolute; left: 50%; bottom: 0; width: 44px; height: 78px; margin-left: -22px;
+    background: linear-gradient(90deg, #f7d56a, var(--yellow)); border-radius: 10px 10px 14px 14px; }
+  .eye { position: absolute; top: 22px; width: 7px; height: 9px; background: var(--black); border-radius: 50%; }
   .eye.l { left: 11px; } .eye.r { right: 11px; }
-  .smile {
-    position: absolute; left: 50%; top: 38px; width: 16px; height: 8px;
-    margin-left: -8px; border-bottom: 3px solid var(--black);
-    border-radius: 0 0 16px 16px;
-  }
-  @keyframes flicker {
-    0%,100% { transform: scale(1) rotate(-2deg); }
-    50% { transform: scale(1.08, 1.12) rotate(2deg); }
-  }
+  .smile { position: absolute; left: 50%; top: 38px; width: 16px; height: 8px; margin-left: -8px; border-bottom: 3px solid var(--black); border-radius: 0 0 16px 16px; }
+  @keyframes flicker { 0%,100% { transform: scale(1) rotate(-2deg); } 50% { transform: scale(1.08, 1.12) rotate(2deg); } }
 
-  /* ---------- Cards, buttons ---------- */
   .card { background: var(--panel); border-radius: 14px; padding: 18px; margin-top: 16px; }
-  .card h2 { margin: 0 0 12px; font-size: 18px; color: var(--yellow); }
-  button {
-    background: var(--yellow); color: var(--black); border: 0; border-radius: 10px;
-    padding: 13px 18px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%;
-  }
+  .card h2 { margin: 0 0 10px; font-size: 18px; color: var(--yellow); }
+  button { background: var(--yellow); color: var(--black); border: 0; border-radius: 10px; padding: 13px 18px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; }
   button:hover { background: var(--yellow-dark); }
   button:disabled { opacity: 0.5; cursor: not-allowed; }
-  .row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-  .label { color: var(--muted); font-size: 13px; }
-  .value { font-size: 14px; word-break: break-all; }
+  .label { color: var(--muted); font-size: 13px; line-height: 1.5; }
   .stat { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid #2b3139; font-size: 14px; }
   .stat:last-of-type { border-bottom: 0; }
-  .yes { color: var(--green); font-weight: bold; }
-  .no { color: var(--red); font-weight: bold; }
+  .yes { color: var(--green); font-weight: bold; } .no { color: var(--red); font-weight: bold; }
   a { color: var(--yellow); }
+  input[type=text] { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #2b3139; background: var(--black); color: var(--text); font-size: 14px; margin: 10px 0; }
 
-  /* ---------- Demo toggle ---------- */
-  .switch { position: relative; width: 50px; height: 28px; flex-shrink: 0; }
-  .switch input { opacity: 0; width: 0; height: 0; }
-  .slider {
-    position: absolute; inset: 0; background: #474d57; border-radius: 28px;
-    cursor: pointer; transition: 0.2s;
-  }
-  .slider::before {
-    content: ""; position: absolute; width: 22px; height: 22px; left: 3px; top: 3px;
-    background: #fff; border-radius: 50%; transition: 0.2s;
-  }
-  .switch input:checked + .slider { background: var(--yellow); }
-  .switch input:checked + .slider::before { transform: translateX(22px); }
-
-  /* ---------- Messages ---------- */
   .msg { margin-top: 14px; padding: 12px; border-radius: 10px; font-size: 14px; display: none; word-break: break-word; }
   .msg.show { display: block; }
   .msg.error { background: rgba(246,70,93,0.15); color: var(--red); }
   .msg.ok { background: rgba(14,203,129,0.15); color: var(--green); }
   .msg.info { background: rgba(240,185,11,0.15); color: var(--yellow); }
-  .badge {
-    display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px;
-    font-weight: bold; background: var(--yellow); color: var(--black);
-  }
-
-  /* ---------- AI prompt + disclaimer ---------- */
-  .prompt-box {
-    background: var(--black); border: 1px solid #2b3139; border-radius: 10px;
-    padding: 12px; font-size: 13px; line-height: 1.5; color: var(--text);
-    white-space: pre-wrap; word-break: break-word; max-height: 260px; overflow-y: auto;
-    font-family: Consolas, Menlo, monospace;
-  }
-  .disclaimer { border: 1px solid var(--yellow); }
-  .disclaimer ul { margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.6; color: var(--text); }
-  .disclaimer li { margin-bottom: 6px; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; background: var(--yellow); color: var(--black); }
   .hidden { display: none; }
+
+  .prompt-box { background: var(--black); border: 1px solid #2b3139; border-radius: 10px; padding: 12px; font-size: 13px; line-height: 1.5;
+    white-space: pre-wrap; word-break: break-word; max-height: 260px; overflow-y: auto; font-family: Consolas, Menlo, monospace; }
+  .disclaimer { border: 1px solid var(--yellow); }
+  .disclaimer ul { margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.6; }
+  .disclaimer li { margin-bottom: 6px; }
 </style>
 </head>
 <body>
 <div class="wrap">
 
   <header>
-    <div class="candle">
-      <div class="flame"></div>
-      <div class="wax">
-        <div class="eye l"></div><div class="eye r"></div><div class="smile"></div>
-      </div>
-    </div>
+    <div class="candle"><div class="flame"></div><div class="wax"><div class="eye l"></div><div class="eye r"></div><div class="smile"></div></div></div>
     <h1>AgentCredit</h1>
     <p class="sub">Sybil-Proof Verified Credit / Grant powered by Agent ID</p>
   </header>
 
-  <!-- Demo mode toggle -->
+  <!-- 1. Check an address (read-only) -->
   <div class="card">
-    <div class="row">
-      <div>
-        <strong>Demo Mode</strong>
-        <div class="label">Try the flow with a sample name.ai ID. No real BNB or gas used.</div>
-      </div>
-      <label class="switch">
-        <input type="checkbox" id="demoToggle">
-        <span class="slider"></span>
-      </label>
+    <h2>1. Check Your Agent Wallet</h2>
+    <div class="label">
+      Agent ID is held by your Agentic Wallet, which cannot connect to websites. Paste <strong>your own</strong> Agentic Wallet address to see if it can claim. This only reads the blockchain on BNB Smart Chain (Chain ID 56).
     </div>
-    <div id="demoBadge" class="hidden" style="margin-top:10px;"><span class="badge">DEMO MODE ON</span></div>
-  </div>
-
-  <!-- Wallet card -->
-  <div class="card">
-    <button id="connectBtn">Connect Wallet</button>
-
-    <div id="walletInfo" class="hidden" style="margin-top:16px;">
-      <div class="label">Account</div>
-      <div class="value" id="accountText">-</div>
-      <div class="label" style="margin-top:10px;">Network</div>
-      <div class="value" id="networkText">-</div>
+    <input id="addrInput" type="text" placeholder="0x... your Agentic Wallet address">
+    <button id="addrBtn">Check My Address</button>
+    <div id="addrResult" class="hidden" style="margin-top:12px;">
+      <div class="stat"><span>Holds an Agent ID?</span><span id="addrHolds">-</span></div>
+      <div class="stat"><span>Already claimed?</span><span id="addrClaimed">-</span></div>
+      <div class="stat"><span>Eligible to claim?</span><span id="addrEligible">-</span></div>
     </div>
-
-    <div id="message" class="msg"></div>
+    <div id="addrMsg" class="msg"></div>
   </div>
 
-  <!-- Credit card (shown after a successful connect) -->
-  <div class="card hidden" id="creditCard">
-    <h2>Verified Credit / Grant</h2>
-    <div class="stat"><span>Agent ID</span><span id="agentIdText">-</span></div>
-    <div class="stat"><span>Holds an Agent ID?</span><span id="holdsText">-</span></div>
-    <div class="stat"><span>Already claimed?</span><span id="claimedText">-</span></div>
-    <div class="stat"><span>Grant per claim</span><span id="grantText">-</span></div>
-    <div class="stat"><span>Total claims so far</span><span id="totalText">-</span></div>
-    <div class="stat"><span>Claims paused?</span><span id="pausedText">-</span></div>
-
-    <button id="claimBtn" style="margin-top:14px;" disabled>Claim Credit</button>
-    <div class="label" style="margin-top:8px;" id="claimHint">Your wallet will ask you to confirm. Nothing is sent without your approval.</div>
-
-    <div id="claimMsg" class="msg"></div>
-  </div>
-
-  <!-- AI agent prompt (Binance AI Pro / Agentic Wallet) -->
+  <!-- 2. AI agent prompt: the way to claim -->
   <div class="card">
-    <h2>Use your AI Agent (Binance AI Pro / Agentic Wallet)</h2>
+    <h2>2. Claim With Your AI Agent</h2>
     <div class="label" style="margin-bottom:10px;">
-      Copy this prompt into your AI agent. It only <strong>reads</strong> the blockchain and gives you a one-line summary.
-      It can never send or sign a transaction. You always confirm the claim yourself.
+      Copy this prompt into your Binance AI Pro / Agentic Wallet agent. It <strong>reads</strong> the blockchain, gives a one-line summary, and shows a claim preview.
+      Nothing is sent until you type "confirm". It never signs on its own.
     </div>
-    <div class="prompt-box" id="promptText">You are my READ-ONLY on-chain assistant for the "AgentCredit" app on BNB Smart Chain Mainnet (Chain ID 56).
+    <div class="prompt-box" id="promptText">You are my on-chain assistant for the "AgentCredit" app on BNB Smart Chain Mainnet (Chain ID 56).
 
-Wallet to check: [PASTE MY WALLET ADDRESS HERE, or use my connected wallet address]
+Wallet to check: my Agentic Wallet address (use my own address)
 
 Do these read-only checks:
 1. On the Agent ID contract 0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F, call balanceOf(wallet). If the result is greater than 0, I hold an Agent ID.
@@ -197,12 +101,28 @@ AgentCredit check: Agent ID = YES/NO | Already claimed = YES/NO | Eligible = YES
 (Eligible = YES only if I hold an Agent ID and have not claimed yet.)
 
 STRICT RULES:
-- Read-only. Do NOT send, sign, approve or auto-submit any transaction.
+- Do NOT send, sign, approve or auto-submit any transaction on your own.
 - Never ask for or use my private key or seed phrase.
-- If I am eligible, only tell me to open the AgentCredit website and confirm the claim myself in my wallet. Any on-chain transaction needs my manual confirmation.
+- If I am eligible, show me a transaction preview first: network BNB Smart Chain (56), to 0x461933673C2802489d5Dc9372619C7a203C7411E, function claimCredit() (data 0x1333db2e), value 0 BNB, plus the estimated gas. Then STOP and wait. Only send it after I type "confirm". Never send it automatically. Any on-chain transaction needs my manual confirmation.
 - Do not promise any income, profit or financial return. This is only a verified credit/grant check.</div>
     <button id="copyPromptBtn" style="margin-top:12px;">Copy Prompt</button>
     <div id="copyMsg" class="msg"></div>
+  </div>
+
+  <!-- 3. Demo mode for judges -->
+  <div class="card">
+    <h2>3. Demo Mode (for judges)</h2>
+    <div class="label" style="margin-bottom:10px;">Try the full flow with a sample name.ai Agent ID. Simulated only: no wallet, no BNB, no gas.</div>
+    <button id="demoBtn">Run Demo</button>
+    <div id="demoCard" class="hidden" style="margin-top:14px;">
+      <span class="badge">DEMO MODE</span>
+      <div class="stat" style="margin-top:8px;"><span>Agent ID</span><span>alice.ai (sample)</span></div>
+      <div class="stat"><span>Holds an Agent ID?</span><span class="yes">Yes</span></div>
+      <div class="stat"><span>Already claimed?</span><span id="demoClaimed" class="yes">No</span></div>
+      <div class="stat"><span>Total claims so far</span><span id="demoTotal">41</span></div>
+      <button id="demoClaimBtn" style="margin-top:12px;">Claim Credit (Demo)</button>
+      <div id="demoMsg" class="msg"></div>
+    </div>
   </div>
 
   <!-- Risk / disclaimer -->
@@ -210,12 +130,12 @@ STRICT RULES:
     <h2>Important Notice &amp; Risks</h2>
     <ul>
       <li><strong>Not an investment.</strong> AgentCredit is a one-time Sybil-Proof Verified Credit / Grant check. It offers no income, profit or financial return.</li>
-      <li><strong>Real BNB gas.</strong> On BNB Smart Chain Mainnet (Chain ID 56), claiming sends a real transaction and costs real BNB for gas. Blockchain transactions cannot be undone. Use Demo Mode to try it for free.</li>
-      <li><strong>One claim per Agent ID wallet.</strong> You need an Agent ID (name.ai) in the connected wallet. The grant amount is set by the contract owner and may be 0.</li>
+      <li><strong>Real transaction.</strong> A real claim is a transaction on BNB Smart Chain Mainnet (Chain ID 56). It may cost a small gas fee in BNB and cannot be undone. Use Demo Mode to try it for free.</li>
+      <li><strong>One claim per Agent ID wallet.</strong> Agent ID (name.ai) is non-transferable. The grant amount is set by the contract owner and may be 0.</li>
       <li><strong>Owner permissions.</strong> The contract owner can change the grant amount, pause new claims, withdraw unused funds and transfer ownership. The owner cannot claim for others or edit who has claimed.</li>
-      <li><strong>Hackathon project, not audited.</strong> This software has not had a professional security audit. Use at your own risk and only with small amounts.</li>
-      <li><strong>Stay safe.</strong> Never share your private key or seed phrase. Always check the transaction in your wallet before confirming. AI agents must never auto-sign: you confirm manually.</li>
-      <li><strong>Verify the contract:</strong> <a href="https://bscscan.com/address/0x461933673C2802489d5Dc9372619C7a203C7411E" target="_blank" rel="noopener">View AgentCredit on BscScan</a></li>
+      <li><strong>Hackathon project, not audited.</strong> Use at your own risk.</li>
+      <li><strong>Stay safe.</strong> Never share your private key or seed phrase. AI agents must never auto-sign: you confirm every transaction manually.</li>
+      <li><strong>Verify the contract:</strong> <a href="https://bscscan.com/address/0x461933673C2802489d5Dc9372619C7a203C7411E" target="_blank" rel="noopener">AgentCredit on BscScan</a></li>
     </ul>
   </div>
 
@@ -223,359 +143,100 @@ STRICT RULES:
 
 <script>
   // ------------------- Settings -------------------
-  const BSC_CHAIN_ID_HEX = "0x38";   // 56 in hex = BNB Smart Chain Mainnet
-  const BSC_CHAIN_ID = 56;
+  const CONTRACT_ADDRESS = "0x461933673C2802489d5Dc9372619C7a203C7411E";  // AgentCredit (BNB Smart Chain Mainnet)
+  const AGENT_ID_ADDRESS = "0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F";  // official Agent ID ERC-721
+  const RPC_URL = "https://bsc-dataseed.binance.org/";
+  const SEL = { balanceOf: "0x70a08231", hasClaimed: "0x73b2e80e", paused: "0x5c975abb" };
 
-  // Your deployed AgentCredit contract (BNB Smart Chain Mainnet)
-  const CONTRACT_ADDRESS = "0x461933673C2802489d5Dc9372619C7a203C7411E";
-  // Official Agent ID ERC-721 contract (BNB Smart Chain Mainnet)
-  const AGENT_ID_ADDRESS = "0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F";
-
-  // Function selectors (first 4 bytes of the keccak256 hash of the function signature)
-  const SEL = {
-    balanceOf:   "0x70a08231", // balanceOf(address)
-    hasClaimed:  "0x73b2e80e", // hasClaimed(address)
-    isEligible:  "0x66e305fd", // isEligible(address)
-    claimCredit: "0x1333db2e", // claimCredit()
-    grantAmount: "0x52fdb2bb", // grantAmount()
-    totalClaims: "0x41c61383", // totalClaims()
-    paused:      "0x5c975abb"  // paused()
-  };
-
-  const DEMO_ACCOUNT = "0xDEM0...0000 (sample)";
-  const DEMO_AGENT_ID = "alice.ai";
-
-  // ------------------- Find the wallet -------------------
-  // Different wallets expose themselves differently, so we check all common ways.
-  const foundWallets = [];
-  window.addEventListener("eip6963:announceProvider", (e) => foundWallets.push(e.detail));
-  window.dispatchEvent(new Event("eip6963:requestProvider"));
-  let eth = null;          // the wallet we will use
-  let currentAccount = null;
-
-  function getProvider() {
-    if (window.ethereum) return window.ethereum;
-    if (window.binancew3w && window.binancew3w.ethereum) return window.binancew3w.ethereum;
-    const binance = foundWallets.find(w => /binance/i.test(w.info.name));
-    if (binance) return binance.provider;
-    if (foundWallets.length) return foundWallets[0].provider;
-    return null;
-  }
-
-  // ------------------- Page elements -------------------
-  const connectBtn = document.getElementById("connectBtn");
-  const demoToggle = document.getElementById("demoToggle");
-  const demoBadge = document.getElementById("demoBadge");
-  const walletInfo = document.getElementById("walletInfo");
-  const accountText = document.getElementById("accountText");
-  const networkText = document.getElementById("networkText");
-  const messageBox = document.getElementById("message");
-
-  const creditCard = document.getElementById("creditCard");
-  const agentIdText = document.getElementById("agentIdText");
-  const holdsText = document.getElementById("holdsText");
-  const claimedText = document.getElementById("claimedText");
-  const grantText = document.getElementById("grantText");
-  const totalText = document.getElementById("totalText");
-  const pausedText = document.getElementById("pausedText");
-  const claimBtn = document.getElementById("claimBtn");
-  const claimMsg = document.getElementById("claimMsg");
-
-  // Show a message in a box: type = "error" | "ok" | "info"
+  // ------------------- Helpers -------------------
   function showIn(box, text, type) { box.textContent = text; box.className = "msg show " + type; }
-  function showMessage(text, type) { showIn(messageBox, text, type); }
-  function clearMessage() { messageBox.className = "msg"; }
-  function clearClaimMsg() { claimMsg.className = "msg"; }
-
-  // ------------------- Small helpers -------------------
-  // Pad a wallet address to 32 bytes for contract calls
   function pad(addr) { return addr.toLowerCase().replace("0x", "").padStart(64, "0"); }
+  function setYesNo(el, isYes) { el.textContent = isYes ? "Yes" : "No"; el.className = isYes ? "yes" : "no"; }
 
-  // Turn wei (BigInt) into a readable BNB number
-  function formatBNB(wei) {
-    const s = wei.toString().padStart(19, "0");
-    const whole = s.slice(0, -18);
-    const frac = s.slice(-18).replace(/0+$/, "");
-    return (frac ? whole + "." + frac : whole) + " BNB";
+  // Read-only call to a public BNB Smart Chain node (no wallet needed, no gas)
+  async function rpcCall(to, data) {
+    const res = await fetch(RPC_URL, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_call", params: [{ to: to, data: data }, "latest"] })
+    });
+    const j = await res.json();
+    if (j.error) throw new Error(j.error.message);
+    return j.result;
   }
 
-  function setYesNo(el, isYes, yesText, noText) {
-    el.textContent = isYes ? yesText : noText;
-    el.className = isYes ? "yes" : "no";
-  }
+  // ------------------- 1. Check an address -------------------
+  document.getElementById("addrBtn").addEventListener("click", async () => {
+    const box = document.getElementById("addrMsg");
+    const result = document.getElementById("addrResult");
+    const addr = document.getElementById("addrInput").value.trim();
+    box.className = "msg"; result.classList.add("hidden");
 
-  // Read-only call to a contract (costs no gas)
-  async function ethCall(to, data) {
-    return await eth.request({ method: "eth_call", params: [{ to: to, data: data }, "latest"] });
-  }
-
-  // ------------------- Demo Mode -------------------
-  let demoClaimed = false;
-  let demoTotal = 41;
-
-  function showDemoStatus() {
-    creditCard.classList.remove("hidden");
-    agentIdText.textContent = DEMO_AGENT_ID + " (sample)";
-    setYesNo(holdsText, true, "Yes", "No");
-    setYesNo(claimedText, !demoClaimed, "No (can claim)", "Yes");
-    claimedText.className = demoClaimed ? "no" : "yes";
-    claimedText.textContent = demoClaimed ? "Yes" : "No";
-    grantText.textContent = "0.001 BNB (demo)";
-    totalText.textContent = String(demoTotal);
-    setYesNo(pausedText, false, "Yes", "No");
-    pausedText.className = "yes";
-    claimBtn.disabled = demoClaimed;
-    claimBtn.textContent = demoClaimed ? "Already Claimed (Demo)" : "Claim Credit (Demo)";
-    clearClaimMsg();
-  }
-
-  demoToggle.addEventListener("change", () => {
-    clearMessage();
-    clearClaimMsg();
-    walletInfo.classList.add("hidden");
-    creditCard.classList.add("hidden");
-    if (demoToggle.checked) {
-      demoBadge.classList.remove("hidden");
-      connectBtn.textContent = "Connect Demo Wallet";
-    } else {
-      demoBadge.classList.add("hidden");
-      connectBtn.textContent = "Connect Wallet";
-    }
-  });
-
-  // ------------------- Connect Wallet -------------------
-  connectBtn.addEventListener("click", async () => {
-    clearMessage();
-    clearClaimMsg();
-
-    // Demo path: no real wallet needed
-    if (demoToggle.checked) {
-      accountText.textContent = DEMO_ACCOUNT;
-      networkText.textContent = "BNB Smart Chain Mainnet (demo, no gas)";
-      walletInfo.classList.remove("hidden");
-      showMessage("Demo connected. Sample Agent ID: " + DEMO_AGENT_ID, "ok");
-      showDemoStatus();
+    if (!/^0x[0-9a-fA-F]{40}$/.test(addr)) {
+      showIn(box, "Please paste a valid wallet address (starts with 0x, 42 characters).", "error");
       return;
     }
-
-    // Real path: need a wallet
-    eth = getProvider();
-    if (!eth) {
-      showMessage("No wallet found. Please install Binance Wallet or MetaMask, then refresh this page.", "error");
-      return;
-    }
-
     try {
-      showMessage("Waiting for wallet approval... Check your wallet popup or click the wallet icon.", "info");
-      const accounts = await eth.request({ method: "eth_requestAccounts" });
-      currentAccount = accounts[0];
-      accountText.textContent = currentAccount;
-      walletInfo.classList.remove("hidden");
-
-      const ok = await checkNetwork();
-      if (ok) { await loadStatus(); }
-    } catch (err) {
-      if (err && err.code === 4001) {
-        showMessage("You rejected the connection request.", "error");
-      } else {
-        showMessage("Could not connect: " + (err.message || err), "error");
-      }
-    }
-  });
-
-  // ------------------- Chain ID 56 check -------------------
-  async function checkNetwork() {
-    const chainIdHex = await eth.request({ method: "eth_chainId" });
-    const chainId = parseInt(chainIdHex, 16);
-
-    if (chainId === BSC_CHAIN_ID) {
-      networkText.textContent = "BNB Smart Chain Mainnet (56)";
-      showMessage("Connected to the correct network. Real BNB is used for gas fees.", "ok");
-      return true;
-    }
-
-    networkText.textContent = "Wrong network (Chain ID " + chainId + ")";
-    creditCard.classList.add("hidden");
-    showMessage("Wrong network. Please switch to BNB Smart Chain Mainnet (Chain ID 56).", "error");
-
-    // Ask the wallet to switch automatically
-    try {
-      await eth.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: BSC_CHAIN_ID_HEX }]
-      });
-    } catch (switchErr) {
-      // 4902 = network not added to the wallet yet
-      if (switchErr.code === 4902) {
-        try {
-          await eth.request({
-            method: "wallet_addEthereumChain",
-            params: [{
-              chainId: BSC_CHAIN_ID_HEX,
-              chainName: "BNB Smart Chain Mainnet",
-              nativeCurrency: { name: "BNB", symbol: "BNB", decimals: 18 },
-              rpcUrls: ["https://bsc-dataseed.binance.org/"],
-              blockExplorerUrls: ["https://bscscan.com"]
-            }]
-          });
-        } catch (addErr) {
-          showMessage("Could not add BNB Smart Chain. Please add it manually in your wallet.", "error");
-        }
-      }
-    }
-    return false;
-  }
-
-  // ------------------- Read real status from the blockchain -------------------
-  async function loadStatus() {
-    creditCard.classList.remove("hidden");
-    clearClaimMsg();
-    claimBtn.disabled = true;
-    claimBtn.textContent = "Checking...";
-
-    try {
-      const user = pad(currentAccount);
-
-      // 1) Does this wallet hold an Agent ID? (calls the official Agent ID contract)
-      const bal = BigInt(await ethCall(AGENT_ID_ADDRESS, SEL.balanceOf + user));
+      showIn(box, "Reading the blockchain...", "info");
+      const user = pad(addr);
+      const bal = BigInt(await rpcCall(AGENT_ID_ADDRESS, SEL.balanceOf + user));
+      const claimed = BigInt(await rpcCall(CONTRACT_ADDRESS, SEL.hasClaimed + user)) === 1n;
+      const paused = BigInt(await rpcCall(CONTRACT_ADDRESS, SEL.paused)) === 1n;
       const holds = bal > 0n;
+      const eligible = holds && !claimed && !paused;
 
-      // 2) Our contract's data
-      const claimed = BigInt(await ethCall(CONTRACT_ADDRESS, SEL.hasClaimed + user)) === 1n;
-      const grant = BigInt(await ethCall(CONTRACT_ADDRESS, SEL.grantAmount));
-      const total = BigInt(await ethCall(CONTRACT_ADDRESS, SEL.totalClaims));
-      const isPaused = BigInt(await ethCall(CONTRACT_ADDRESS, SEL.paused)) === 1n;
+      setYesNo(document.getElementById("addrHolds"), holds);
+      const c = document.getElementById("addrClaimed");
+      c.textContent = claimed ? "Yes" : "No"; c.className = claimed ? "no" : "yes";
+      setYesNo(document.getElementById("addrEligible"), eligible);
+      result.classList.remove("hidden");
 
-      agentIdText.textContent = holds ? "Found (" + bal.toString() + ")" : "None";
-      setYesNo(holdsText, holds, "Yes", "No");
-      claimedText.textContent = claimed ? "Yes" : "No";
-      claimedText.className = claimed ? "no" : "yes";
-      grantText.textContent = grant === 0n ? "0 BNB (verification only)" : formatBNB(grant);
-      totalText.textContent = total.toString();
-      pausedText.textContent = isPaused ? "Yes" : "No";
-      pausedText.className = isPaused ? "no" : "yes";
-
-      // 3) Decide if the claim button can be used
-      if (isPaused) {
-        claimBtn.textContent = "Claims Paused";
-      } else if (claimed) {
-        claimBtn.textContent = "Already Claimed";
-      } else if (!holds) {
-        claimBtn.textContent = "No Agent ID Found";
-        showIn(claimMsg, "This wallet has no Agent ID, so it cannot claim. Make sure you connect the wallet that holds your Agent ID.", "error");
-      } else {
-        claimBtn.disabled = false;
-        claimBtn.textContent = "Claim Credit";
-      }
+      if (eligible) showIn(box, "Eligible. To claim, use step 2 with your AI agent. You confirm manually.", "ok");
+      else if (claimed) showIn(box, "This address has already claimed.", "info");
+      else if (!holds) showIn(box, "No Agent ID found at this address.", "error");
+      else if (paused) showIn(box, "Claims are paused by the owner.", "error");
     } catch (err) {
-      claimBtn.textContent = "Claim Credit";
-      showIn(claimMsg, "Could not read data from the blockchain: " + (err.message || err), "error");
-    }
-  }
-
-  // ------------------- Claim -------------------
-  claimBtn.addEventListener("click", async () => {
-    clearClaimMsg();
-
-    // Demo path: fake the whole flow, no gas
-    if (demoToggle.checked) {
-      claimBtn.disabled = true;
-      claimBtn.textContent = "Claiming (demo)...";
-      showIn(claimMsg, "Demo: sending a simulated transaction...", "info");
-      setTimeout(() => {
-        demoClaimed = true;
-        demoTotal += 1;
-        showDemoStatus();
-        showIn(claimMsg, "Demo success! Verified credit claimed for " + DEMO_AGENT_ID + ". (No real transaction was made.)", "ok");
-      }, 1500);
-      return;
-    }
-
-    // Real path: the wallet will ask the user to confirm. We never sign automatically.
-    try {
-      claimBtn.disabled = true;
-      claimBtn.textContent = "Confirm in your wallet...";
-      showIn(claimMsg, "Please confirm the transaction in your wallet. A small BNB gas fee applies.", "info");
-
-      const txHash = await eth.request({
-        method: "eth_sendTransaction",
-        params: [{ from: currentAccount, to: CONTRACT_ADDRESS, data: SEL.claimCredit }]
-      });
-
-      claimBtn.textContent = "Waiting for confirmation...";
-      claimMsg.className = "msg show info";
-      claimMsg.innerHTML = "Transaction sent. Waiting for the network... " +
-        '<a href="https://bscscan.com/tx/' + txHash + '" target="_blank" rel="noopener">View on BscScan</a>';
-
-      await waitForReceipt(txHash);
-    } catch (err) {
-      if (err && err.code === 4001) {
-        showIn(claimMsg, "You rejected the transaction. Nothing was sent.", "error");
-      } else {
-        showIn(claimMsg, "Claim failed: " + (err.message || err), "error");
-      }
-      await loadStatus();
+      showIn(box, "Could not read the blockchain: " + (err.message || err), "error");
     }
   });
 
-  // Check every 3 seconds until the transaction is confirmed
-  async function waitForReceipt(txHash) {
-    for (let i = 0; i < 60; i++) {
-      const receipt = await eth.request({ method: "eth_getTransactionReceipt", params: [txHash] });
-      if (receipt) {
-        const success = receipt.status === "0x1";
-        claimMsg.className = "msg show " + (success ? "ok" : "error");
-        claimMsg.innerHTML = (success
-          ? "Success! Your verified credit was claimed. "
-          : "The transaction failed on-chain. ") +
-          '<a href="https://bscscan.com/tx/' + txHash + '" target="_blank" rel="noopener">View on BscScan</a>';
-        const keep = claimMsg.innerHTML;
-        await loadStatus();
-        claimMsg.className = "msg show " + (success ? "ok" : "error");
-        claimMsg.innerHTML = keep;
-        return;
-      }
-      await new Promise(r => setTimeout(r, 3000));
-    }
-    showIn(claimMsg, "Still waiting. Check your transaction on BscScan.", "info");
-  }
-
-  // ------------------- Copy the AI prompt -------------------
+  // ------------------- 2. Copy the AI prompt -------------------
   document.getElementById("copyPromptBtn").addEventListener("click", async () => {
-    const text = document.getElementById("promptText").textContent;
+    const el = document.getElementById("promptText");
     const box = document.getElementById("copyMsg");
     try {
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(el.textContent);
       showIn(box, "Prompt copied! Paste it into your AI agent.", "ok");
     } catch (e) {
-      // Fallback for browsers that block the clipboard
-      const range = document.createRange();
-      range.selectNodeContents(document.getElementById("promptText"));
-      const sel = window.getSelection();
-      sel.removeAllRanges(); sel.addRange(range);
+      const range = document.createRange(); range.selectNodeContents(el);
+      const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
       showIn(box, "Text selected. Press Ctrl+C (or Cmd+C) to copy it.", "info");
     }
   });
 
-  // ------------------- Wallet events -------------------
-  setTimeout(() => {
-    const w = getProvider();
-    if (!w || !w.on) return;
-    // Reload when the user changes network
-    w.on("chainChanged", () => window.location.reload());
-    // Update when the user changes account
-    w.on("accountsChanged", (accounts) => {
-      if (accounts.length === 0) {
-        walletInfo.classList.add("hidden");
-        creditCard.classList.add("hidden");
-        showMessage("Wallet disconnected.", "info");
-      } else if (!demoToggle.checked) {
-        currentAccount = accounts[0];
-        accountText.textContent = currentAccount;
-        loadStatus();
-      }
-    });
-  }, 500);
+  // ------------------- 3. Demo mode (simulated, no gas) -------------------
+  let demoClaimed = false, demoTotal = 41;
+  const demoCard = document.getElementById("demoCard");
+  const demoClaimBtn = document.getElementById("demoClaimBtn");
+  const demoMsg = document.getElementById("demoMsg");
+
+  function renderDemo() {
+    const c = document.getElementById("demoClaimed");
+    c.textContent = demoClaimed ? "Yes" : "No"; c.className = demoClaimed ? "no" : "yes";
+    document.getElementById("demoTotal").textContent = demoTotal;
+    demoClaimBtn.disabled = demoClaimed;
+    demoClaimBtn.textContent = demoClaimed ? "Already Claimed (Demo)" : "Claim Credit (Demo)";
+  }
+  document.getElementById("demoBtn").addEventListener("click", () => {
+    demoCard.classList.remove("hidden"); demoMsg.className = "msg"; renderDemo();
+  });
+  demoClaimBtn.addEventListener("click", () => {
+    demoClaimBtn.disabled = true; demoClaimBtn.textContent = "Claiming (demo)...";
+    showIn(demoMsg, "Demo: sending a simulated transaction...", "info");
+    setTimeout(() => {
+      demoClaimed = true; demoTotal += 1; renderDemo();
+      showIn(demoMsg, "Demo success! Verified credit claimed for alice.ai. (No real transaction was made.)", "ok");
+    }, 1500);
+  });
 </script>
 </body>
 </html>
