@@ -64,6 +64,7 @@
 
   /* ---------- Cards, buttons ---------- */
   .card { background: var(--panel); border-radius: 14px; padding: 18px; margin-top: 16px; }
+  .card h2 { margin: 0 0 12px; font-size: 18px; color: var(--yellow); }
   button {
     background: var(--yellow); color: var(--black); border: 0; border-radius: 10px;
     padding: 13px 18px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%;
@@ -73,6 +74,11 @@
   .row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
   .label { color: var(--muted); font-size: 13px; }
   .value { font-size: 14px; word-break: break-all; }
+  .stat { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid #2b3139; font-size: 14px; }
+  .stat:last-of-type { border-bottom: 0; }
+  .yes { color: var(--green); font-weight: bold; }
+  .no { color: var(--red); font-weight: bold; }
+  a { color: var(--yellow); }
 
   /* ---------- Demo toggle ---------- */
   .switch { position: relative; width: 50px; height: 28px; flex-shrink: 0; }
@@ -89,7 +95,7 @@
   .switch input:checked + .slider::before { transform: translateX(22px); }
 
   /* ---------- Messages ---------- */
-  .msg { margin-top: 14px; padding: 12px; border-radius: 10px; font-size: 14px; display: none; }
+  .msg { margin-top: 14px; padding: 12px; border-radius: 10px; font-size: 14px; display: none; word-break: break-word; }
   .msg.show { display: block; }
   .msg.error { background: rgba(246,70,93,0.15); color: var(--red); }
   .msg.ok { background: rgba(14,203,129,0.15); color: var(--green); }
@@ -98,6 +104,17 @@
     display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px;
     font-weight: bold; background: var(--yellow); color: var(--black);
   }
+
+  /* ---------- AI prompt + disclaimer ---------- */
+  .prompt-box {
+    background: var(--black); border: 1px solid #2b3139; border-radius: 10px;
+    padding: 12px; font-size: 13px; line-height: 1.5; color: var(--text);
+    white-space: pre-wrap; word-break: break-word; max-height: 260px; overflow-y: auto;
+    font-family: Consolas, Menlo, monospace;
+  }
+  .disclaimer { border: 1px solid var(--yellow); }
+  .disclaimer ul { margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.6; color: var(--text); }
+  .disclaimer li { margin-bottom: 6px; }
   .hidden { display: none; }
 </style>
 </head>
@@ -144,12 +161,87 @@
     <div id="message" class="msg"></div>
   </div>
 
+  <!-- Credit card (shown after a successful connect) -->
+  <div class="card hidden" id="creditCard">
+    <h2>Verified Credit / Grant</h2>
+    <div class="stat"><span>Agent ID</span><span id="agentIdText">-</span></div>
+    <div class="stat"><span>Holds an Agent ID?</span><span id="holdsText">-</span></div>
+    <div class="stat"><span>Already claimed?</span><span id="claimedText">-</span></div>
+    <div class="stat"><span>Grant per claim</span><span id="grantText">-</span></div>
+    <div class="stat"><span>Total claims so far</span><span id="totalText">-</span></div>
+    <div class="stat"><span>Claims paused?</span><span id="pausedText">-</span></div>
+
+    <button id="claimBtn" style="margin-top:14px;" disabled>Claim Credit</button>
+    <div class="label" style="margin-top:8px;" id="claimHint">Your wallet will ask you to confirm. Nothing is sent without your approval.</div>
+
+    <div id="claimMsg" class="msg"></div>
+  </div>
+
+  <!-- AI agent prompt (Binance AI Pro / Agentic Wallet) -->
+  <div class="card">
+    <h2>Use your AI Agent (Binance AI Pro / Agentic Wallet)</h2>
+    <div class="label" style="margin-bottom:10px;">
+      Copy this prompt into your AI agent. It only <strong>reads</strong> the blockchain and gives you a one-line summary.
+      It can never send or sign a transaction. You always confirm the claim yourself.
+    </div>
+    <div class="prompt-box" id="promptText">You are my READ-ONLY on-chain assistant for the "AgentCredit" app on BNB Smart Chain Mainnet (Chain ID 56).
+
+Wallet to check: [PASTE MY WALLET ADDRESS HERE, or use my connected wallet address]
+
+Do these read-only checks:
+1. On the Agent ID contract 0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F, call balanceOf(wallet). If the result is greater than 0, I hold an Agent ID.
+2. On the AgentCredit contract 0x461933673C2802489d5Dc9372619C7a203C7411E, call hasClaimed(wallet).
+
+Then reply with exactly ONE line in this format:
+AgentCredit check: Agent ID = YES/NO | Already claimed = YES/NO | Eligible = YES/NO
+(Eligible = YES only if I hold an Agent ID and have not claimed yet.)
+
+STRICT RULES:
+- Read-only. Do NOT send, sign, approve or auto-submit any transaction.
+- Never ask for or use my private key or seed phrase.
+- If I am eligible, only tell me to open the AgentCredit website and confirm the claim myself in my wallet. Any on-chain transaction needs my manual confirmation.
+- Do not promise any income, profit or financial return. This is only a verified credit/grant check.</div>
+    <button id="copyPromptBtn" style="margin-top:12px;">Copy Prompt</button>
+    <div id="copyMsg" class="msg"></div>
+  </div>
+
+  <!-- Risk / disclaimer -->
+  <div class="card disclaimer">
+    <h2>Important Notice &amp; Risks</h2>
+    <ul>
+      <li><strong>Not an investment.</strong> AgentCredit is a one-time Sybil-Proof Verified Credit / Grant check. It offers no income, profit or financial return.</li>
+      <li><strong>Real BNB gas.</strong> On BNB Smart Chain Mainnet (Chain ID 56), claiming sends a real transaction and costs real BNB for gas. Blockchain transactions cannot be undone. Use Demo Mode to try it for free.</li>
+      <li><strong>One claim per Agent ID wallet.</strong> You need an Agent ID (name.ai) in the connected wallet. The grant amount is set by the contract owner and may be 0.</li>
+      <li><strong>Owner permissions.</strong> The contract owner can change the grant amount, pause new claims, withdraw unused funds and transfer ownership. The owner cannot claim for others or edit who has claimed.</li>
+      <li><strong>Hackathon project, not audited.</strong> This software has not had a professional security audit. Use at your own risk and only with small amounts.</li>
+      <li><strong>Stay safe.</strong> Never share your private key or seed phrase. Always check the transaction in your wallet before confirming. AI agents must never auto-sign: you confirm manually.</li>
+      <li><strong>Verify the contract:</strong> <a href="https://bscscan.com/address/0x461933673C2802489d5Dc9372619C7a203C7411E" target="_blank" rel="noopener">View AgentCredit on BscScan</a></li>
+    </ul>
+  </div>
+
 </div>
 
 <script>
   // ------------------- Settings -------------------
   const BSC_CHAIN_ID_HEX = "0x38";   // 56 in hex = BNB Smart Chain Mainnet
   const BSC_CHAIN_ID = 56;
+
+  // Your deployed AgentCredit contract (BNB Smart Chain Mainnet)
+  const CONTRACT_ADDRESS = "0x461933673C2802489d5Dc9372619C7a203C7411E";
+  // Official Agent ID ERC-721 contract (BNB Smart Chain Mainnet)
+  const AGENT_ID_ADDRESS = "0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F";
+
+  // Function selectors (first 4 bytes of the keccak256 hash of the function signature)
+  const SEL = {
+    balanceOf:   "0x70a08231", // balanceOf(address)
+    hasClaimed:  "0x73b2e80e", // hasClaimed(address)
+    isEligible:  "0x66e305fd", // isEligible(address)
+    claimCredit: "0x1333db2e", // claimCredit()
+    grantAmount: "0x52fdb2bb", // grantAmount()
+    totalClaims: "0x41c61383", // totalClaims()
+    paused:      "0x5c975abb"  // paused()
+  };
+
   const DEMO_ACCOUNT = "0xDEM0...0000 (sample)";
   const DEMO_AGENT_ID = "alice.ai";
 
@@ -158,7 +250,8 @@
   const foundWallets = [];
   window.addEventListener("eip6963:announceProvider", (e) => foundWallets.push(e.detail));
   window.dispatchEvent(new Event("eip6963:requestProvider"));
-  let eth = null; // the wallet we will use
+  let eth = null;          // the wallet we will use
+  let currentAccount = null;
 
   function getProvider() {
     if (window.ethereum) return window.ethereum;
@@ -178,19 +271,69 @@
   const networkText = document.getElementById("networkText");
   const messageBox = document.getElementById("message");
 
-  // Show a message box: type = "error" | "ok" | "info"
-  function showMessage(text, type) {
-    messageBox.textContent = text;
-    messageBox.className = "msg show " + type;
-  }
-  function clearMessage() { messageBox.className = "msg"; }
+  const creditCard = document.getElementById("creditCard");
+  const agentIdText = document.getElementById("agentIdText");
+  const holdsText = document.getElementById("holdsText");
+  const claimedText = document.getElementById("claimedText");
+  const grantText = document.getElementById("grantText");
+  const totalText = document.getElementById("totalText");
+  const pausedText = document.getElementById("pausedText");
+  const claimBtn = document.getElementById("claimBtn");
+  const claimMsg = document.getElementById("claimMsg");
 
-  function shorten(addr) { return addr.slice(0, 6) + "..." + addr.slice(-4); }
+  // Show a message in a box: type = "error" | "ok" | "info"
+  function showIn(box, text, type) { box.textContent = text; box.className = "msg show " + type; }
+  function showMessage(text, type) { showIn(messageBox, text, type); }
+  function clearMessage() { messageBox.className = "msg"; }
+  function clearClaimMsg() { claimMsg.className = "msg"; }
+
+  // ------------------- Small helpers -------------------
+  // Pad a wallet address to 32 bytes for contract calls
+  function pad(addr) { return addr.toLowerCase().replace("0x", "").padStart(64, "0"); }
+
+  // Turn wei (BigInt) into a readable BNB number
+  function formatBNB(wei) {
+    const s = wei.toString().padStart(19, "0");
+    const whole = s.slice(0, -18);
+    const frac = s.slice(-18).replace(/0+$/, "");
+    return (frac ? whole + "." + frac : whole) + " BNB";
+  }
+
+  function setYesNo(el, isYes, yesText, noText) {
+    el.textContent = isYes ? yesText : noText;
+    el.className = isYes ? "yes" : "no";
+  }
+
+  // Read-only call to a contract (costs no gas)
+  async function ethCall(to, data) {
+    return await eth.request({ method: "eth_call", params: [{ to: to, data: data }, "latest"] });
+  }
 
   // ------------------- Demo Mode -------------------
+  let demoClaimed = false;
+  let demoTotal = 41;
+
+  function showDemoStatus() {
+    creditCard.classList.remove("hidden");
+    agentIdText.textContent = DEMO_AGENT_ID + " (sample)";
+    setYesNo(holdsText, true, "Yes", "No");
+    setYesNo(claimedText, !demoClaimed, "No (can claim)", "Yes");
+    claimedText.className = demoClaimed ? "no" : "yes";
+    claimedText.textContent = demoClaimed ? "Yes" : "No";
+    grantText.textContent = "0.001 BNB (demo)";
+    totalText.textContent = String(demoTotal);
+    setYesNo(pausedText, false, "Yes", "No");
+    pausedText.className = "yes";
+    claimBtn.disabled = demoClaimed;
+    claimBtn.textContent = demoClaimed ? "Already Claimed (Demo)" : "Claim Credit (Demo)";
+    clearClaimMsg();
+  }
+
   demoToggle.addEventListener("change", () => {
     clearMessage();
+    clearClaimMsg();
     walletInfo.classList.add("hidden");
+    creditCard.classList.add("hidden");
     if (demoToggle.checked) {
       demoBadge.classList.remove("hidden");
       connectBtn.textContent = "Connect Demo Wallet";
@@ -203,6 +346,7 @@
   // ------------------- Connect Wallet -------------------
   connectBtn.addEventListener("click", async () => {
     clearMessage();
+    clearClaimMsg();
 
     // Demo path: no real wallet needed
     if (demoToggle.checked) {
@@ -210,6 +354,7 @@
       networkText.textContent = "BNB Smart Chain Mainnet (demo, no gas)";
       walletInfo.classList.remove("hidden");
       showMessage("Demo connected. Sample Agent ID: " + DEMO_AGENT_ID, "ok");
+      showDemoStatus();
       return;
     }
 
@@ -223,9 +368,12 @@
     try {
       showMessage("Waiting for wallet approval... Check your wallet popup or click the wallet icon.", "info");
       const accounts = await eth.request({ method: "eth_requestAccounts" });
-      accountText.textContent = accounts[0];
+      currentAccount = accounts[0];
+      accountText.textContent = currentAccount;
       walletInfo.classList.remove("hidden");
-      await checkNetwork();
+
+      const ok = await checkNetwork();
+      if (ok) { await loadStatus(); }
     } catch (err) {
       if (err && err.code === 4001) {
         showMessage("You rejected the connection request.", "error");
@@ -247,6 +395,7 @@
     }
 
     networkText.textContent = "Wrong network (Chain ID " + chainId + ")";
+    creditCard.classList.add("hidden");
     showMessage("Wrong network. Please switch to BNB Smart Chain Mainnet (Chain ID 56).", "error");
 
     // Ask the wallet to switch automatically
@@ -277,19 +426,153 @@
     return false;
   }
 
+  // ------------------- Read real status from the blockchain -------------------
+  async function loadStatus() {
+    creditCard.classList.remove("hidden");
+    clearClaimMsg();
+    claimBtn.disabled = true;
+    claimBtn.textContent = "Checking...";
+
+    try {
+      const user = pad(currentAccount);
+
+      // 1) Does this wallet hold an Agent ID? (calls the official Agent ID contract)
+      const bal = BigInt(await ethCall(AGENT_ID_ADDRESS, SEL.balanceOf + user));
+      const holds = bal > 0n;
+
+      // 2) Our contract's data
+      const claimed = BigInt(await ethCall(CONTRACT_ADDRESS, SEL.hasClaimed + user)) === 1n;
+      const grant = BigInt(await ethCall(CONTRACT_ADDRESS, SEL.grantAmount));
+      const total = BigInt(await ethCall(CONTRACT_ADDRESS, SEL.totalClaims));
+      const isPaused = BigInt(await ethCall(CONTRACT_ADDRESS, SEL.paused)) === 1n;
+
+      agentIdText.textContent = holds ? "Found (" + bal.toString() + ")" : "None";
+      setYesNo(holdsText, holds, "Yes", "No");
+      claimedText.textContent = claimed ? "Yes" : "No";
+      claimedText.className = claimed ? "no" : "yes";
+      grantText.textContent = grant === 0n ? "0 BNB (verification only)" : formatBNB(grant);
+      totalText.textContent = total.toString();
+      pausedText.textContent = isPaused ? "Yes" : "No";
+      pausedText.className = isPaused ? "no" : "yes";
+
+      // 3) Decide if the claim button can be used
+      if (isPaused) {
+        claimBtn.textContent = "Claims Paused";
+      } else if (claimed) {
+        claimBtn.textContent = "Already Claimed";
+      } else if (!holds) {
+        claimBtn.textContent = "No Agent ID Found";
+        showIn(claimMsg, "This wallet has no Agent ID, so it cannot claim. Make sure you connect the wallet that holds your Agent ID.", "error");
+      } else {
+        claimBtn.disabled = false;
+        claimBtn.textContent = "Claim Credit";
+      }
+    } catch (err) {
+      claimBtn.textContent = "Claim Credit";
+      showIn(claimMsg, "Could not read data from the blockchain: " + (err.message || err), "error");
+    }
+  }
+
+  // ------------------- Claim -------------------
+  claimBtn.addEventListener("click", async () => {
+    clearClaimMsg();
+
+    // Demo path: fake the whole flow, no gas
+    if (demoToggle.checked) {
+      claimBtn.disabled = true;
+      claimBtn.textContent = "Claiming (demo)...";
+      showIn(claimMsg, "Demo: sending a simulated transaction...", "info");
+      setTimeout(() => {
+        demoClaimed = true;
+        demoTotal += 1;
+        showDemoStatus();
+        showIn(claimMsg, "Demo success! Verified credit claimed for " + DEMO_AGENT_ID + ". (No real transaction was made.)", "ok");
+      }, 1500);
+      return;
+    }
+
+    // Real path: the wallet will ask the user to confirm. We never sign automatically.
+    try {
+      claimBtn.disabled = true;
+      claimBtn.textContent = "Confirm in your wallet...";
+      showIn(claimMsg, "Please confirm the transaction in your wallet. A small BNB gas fee applies.", "info");
+
+      const txHash = await eth.request({
+        method: "eth_sendTransaction",
+        params: [{ from: currentAccount, to: CONTRACT_ADDRESS, data: SEL.claimCredit }]
+      });
+
+      claimBtn.textContent = "Waiting for confirmation...";
+      claimMsg.className = "msg show info";
+      claimMsg.innerHTML = "Transaction sent. Waiting for the network... " +
+        '<a href="https://bscscan.com/tx/' + txHash + '" target="_blank" rel="noopener">View on BscScan</a>';
+
+      await waitForReceipt(txHash);
+    } catch (err) {
+      if (err && err.code === 4001) {
+        showIn(claimMsg, "You rejected the transaction. Nothing was sent.", "error");
+      } else {
+        showIn(claimMsg, "Claim failed: " + (err.message || err), "error");
+      }
+      await loadStatus();
+    }
+  });
+
+  // Check every 3 seconds until the transaction is confirmed
+  async function waitForReceipt(txHash) {
+    for (let i = 0; i < 60; i++) {
+      const receipt = await eth.request({ method: "eth_getTransactionReceipt", params: [txHash] });
+      if (receipt) {
+        const success = receipt.status === "0x1";
+        claimMsg.className = "msg show " + (success ? "ok" : "error");
+        claimMsg.innerHTML = (success
+          ? "Success! Your verified credit was claimed. "
+          : "The transaction failed on-chain. ") +
+          '<a href="https://bscscan.com/tx/' + txHash + '" target="_blank" rel="noopener">View on BscScan</a>';
+        const keep = claimMsg.innerHTML;
+        await loadStatus();
+        claimMsg.className = "msg show " + (success ? "ok" : "error");
+        claimMsg.innerHTML = keep;
+        return;
+      }
+      await new Promise(r => setTimeout(r, 3000));
+    }
+    showIn(claimMsg, "Still waiting. Check your transaction on BscScan.", "info");
+  }
+
+  // ------------------- Copy the AI prompt -------------------
+  document.getElementById("copyPromptBtn").addEventListener("click", async () => {
+    const text = document.getElementById("promptText").textContent;
+    const box = document.getElementById("copyMsg");
+    try {
+      await navigator.clipboard.writeText(text);
+      showIn(box, "Prompt copied! Paste it into your AI agent.", "ok");
+    } catch (e) {
+      // Fallback for browsers that block the clipboard
+      const range = document.createRange();
+      range.selectNodeContents(document.getElementById("promptText"));
+      const sel = window.getSelection();
+      sel.removeAllRanges(); sel.addRange(range);
+      showIn(box, "Text selected. Press Ctrl+C (or Cmd+C) to copy it.", "info");
+    }
+  });
+
   // ------------------- Wallet events -------------------
   setTimeout(() => {
     const w = getProvider();
     if (!w || !w.on) return;
-    // Re-check when the user changes network
+    // Reload when the user changes network
     w.on("chainChanged", () => window.location.reload());
     // Update when the user changes account
     w.on("accountsChanged", (accounts) => {
       if (accounts.length === 0) {
         walletInfo.classList.add("hidden");
+        creditCard.classList.add("hidden");
         showMessage("Wallet disconnected.", "info");
-      } else {
-        accountText.textContent = accounts[0];
+      } else if (!demoToggle.checked) {
+        currentAccount = accounts[0];
+        accountText.textContent = currentAccount;
+        loadStatus();
       }
     });
   }, 500);
