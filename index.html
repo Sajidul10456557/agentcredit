@@ -4,19 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AgentCredit</title>
+<meta name="description" content="AgentCredit: a Sybil-proof verified credit / grant check powered by Agent ID on BNB Smart Chain.">
+<meta property="og:title" content="AgentCredit">
+<meta property="og:description" content="Sybil-proof verified credit / grant check powered by Agent ID on BNB Smart Chain.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%95%AF%EF%B8%8F%3C/text%3E%3C/svg%3E">
 <style>
   :root {
     --yellow: #F0B90B; --yellow-dark: #c99a07; --black: #0b0e11; --panel: #1e2329;
-    --text: #eaecef; --muted: #848e9c; --red: #f6465d; --green: #0ecb81;
+    --line: #2b3139; --text: #eaecef; --muted: #848e9c; --red: #f6465d; --green: #0ecb81;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--black); color: var(--text); font-family: Arial, Helvetica, sans-serif; min-height: 100vh; }
-  .wrap { max-width: 560px; margin: 0 auto; padding: 24px 16px 48px; }
-  header { text-align: center; margin-bottom: 20px; }
+  body { margin: 0; background: var(--black); color: var(--text); font-family: Arial, Helvetica, "Noto Sans Bengali", sans-serif; min-height: 100vh; line-height: 1.45; }
+  .wrap { max-width: 600px; margin: 0 auto; padding: 16px 16px 48px; }
+  .topbar { display: flex; justify-content: flex-end; gap: 6px; }
+  .lang { width: auto; padding: 6px 12px; font-size: 13px; border-radius: 8px; background: transparent; color: var(--muted); border: 1px solid var(--line); }
+  .lang.active { background: var(--yellow); color: var(--black); border-color: var(--yellow); }
+  header { text-align: center; margin-bottom: 8px; }
   h1 { margin: 12px 0 4px; color: var(--yellow); font-size: 32px; letter-spacing: 1px; }
   .sub { color: var(--muted); font-size: 14px; margin: 0; }
 
-  /* CSS candle mascot */
   .candle { position: relative; width: 70px; height: 120px; margin: 0 auto; }
   .flame { position: absolute; left: 50%; top: 0; width: 22px; height: 34px; margin-left: -11px;
     background: radial-gradient(circle at 50% 70%, #fff6c9, var(--yellow) 60%, #ff9d00);
@@ -31,15 +37,21 @@
 
   .card { background: var(--panel); border-radius: 14px; padding: 18px; margin-top: 16px; }
   .card h2 { margin: 0 0 10px; font-size: 18px; color: var(--yellow); }
-  button { background: var(--yellow); color: var(--black); border: 0; border-radius: 10px; padding: 13px 18px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; }
+  button { background: var(--yellow); color: var(--black); border: 0; border-radius: 10px; padding: 13px 18px; font-size: 16px; font-weight: bold; cursor: pointer; width: 100%; font-family: inherit; }
   button:hover { background: var(--yellow-dark); }
   button:disabled { opacity: 0.5; cursor: not-allowed; }
-  .label { color: var(--muted); font-size: 13px; line-height: 1.5; }
-  .stat { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid #2b3139; font-size: 14px; }
+  button.ghost { background: transparent; color: var(--yellow); border: 1px solid var(--yellow); padding: 10px 14px; font-size: 14px; }
+  button.ghost:hover { background: rgba(240,185,11,0.12); }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .row button { flex: 1 1 140px; }
+  .label { color: var(--muted); font-size: 13px; line-height: 1.55; }
+  .stat { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
   .stat:last-of-type { border-bottom: 0; }
+  .stat > span:last-child { text-align: right; word-break: break-all; }
   .yes { color: var(--green); font-weight: bold; } .no { color: var(--red); font-weight: bold; }
+  .warn { color: var(--yellow); font-weight: bold; }
   a { color: var(--yellow); }
-  input[type=text] { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #2b3139; background: var(--black); color: var(--text); font-size: 14px; margin: 10px 0; }
+  input[type=text] { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--black); color: var(--text); font-size: 14px; margin: 10px 0; font-family: inherit; }
 
   .msg { margin-top: 14px; padding: 12px; border-radius: 10px; font-size: 14px; display: none; word-break: break-word; }
   .msg.show { display: block; }
@@ -49,43 +61,123 @@
   .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; background: var(--yellow); color: var(--black); }
   .hidden { display: none; }
 
-  .prompt-box { background: var(--black); border: 1px solid #2b3139; border-radius: 10px; padding: 12px; font-size: 13px; line-height: 1.5;
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .chip { background: var(--black); border: 1px solid var(--line); color: var(--muted); border-radius: 20px; padding: 4px 10px; font-size: 12px; cursor: pointer; font-family: Consolas, Menlo, monospace; }
+  .chip:hover { color: var(--yellow); border-color: var(--yellow); }
+
+  .prompt-box { background: var(--black); border: 1px solid var(--line); border-radius: 10px; padding: 12px; font-size: 13px; line-height: 1.5;
     white-space: pre-wrap; word-break: break-word; max-height: 260px; overflow-y: auto; font-family: Consolas, Menlo, monospace; }
+  .preview { background: var(--black); border: 1px dashed var(--yellow); border-radius: 10px; padding: 12px; margin-top: 12px; }
+  .preview .stat { font-size: 13px; }
+
+  .steps { display: grid; gap: 10px; }
+  .step { display: flex; gap: 12px; align-items: flex-start; }
+  .num { flex: 0 0 30px; height: 30px; border-radius: 50%; background: var(--yellow); color: var(--black); font-weight: bold; display: flex; align-items: center; justify-content: center; }
+  .step strong { display: block; font-size: 14px; }
+  .step span { color: var(--muted); font-size: 13px; }
+
+  details { border-bottom: 1px solid var(--line); padding: 10px 0; }
+  details:last-child { border-bottom: 0; }
+  summary { cursor: pointer; font-size: 14px; font-weight: bold; }
+  details p { margin: 8px 0 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+
   .disclaimer { border: 1px solid var(--yellow); }
   .disclaimer ul { margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.6; }
   .disclaimer li { margin-bottom: 6px; }
+  .why ul { margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.6; }
+  .why li { margin-bottom: 6px; }
+  footer { text-align: center; margin-top: 22px; font-size: 12px; color: var(--muted); }
+  footer a { margin: 0 6px; }
 </style>
 </head>
 <body>
 <div class="wrap">
 
+  <div class="topbar">
+    <button class="lang" id="langEn" type="button">EN</button>
+    <button class="lang" id="langBn" type="button">বাংলা</button>
+  </div>
+
   <header>
     <div class="candle"><div class="flame"></div><div class="wax"><div class="eye l"></div><div class="eye r"></div><div class="smile"></div></div></div>
     <h1>AgentCredit</h1>
-    <p class="sub">Sybil-Proof Verified Credit / Grant powered by Agent ID</p>
+    <p class="sub" data-i18n="tagline">Sybil-Proof Verified Credit / Grant powered by Agent ID</p>
   </header>
 
-  <!-- 1. Check an address (read-only) -->
+  <!-- 0. Live on-chain stats -->
   <div class="card">
-    <h2>1. Check Your Agent Wallet</h2>
-    <div class="label">
-      Agent ID is held by your Agentic Wallet, which cannot connect to websites. Paste <strong>your own</strong> Agentic Wallet address to see if it can claim. This only reads the blockchain on BNB Smart Chain (Chain ID 56).
+    <h2 data-i18n="statsTitle">Live On-Chain Status</h2>
+    <div class="label" data-i18n="statsDesc">Read directly from BNB Smart Chain. No wallet needed.</div>
+    <div style="margin-top:8px;">
+      <div class="stat"><span data-i18n="stNetwork">Network (latest block)</span><span id="stBlock">-</span></div>
+      <div class="stat"><span data-i18n="stClaims">Claims</span><span id="stPaused">-</span></div>
+      <div class="stat"><span data-i18n="stPool">Contract balance</span><span id="stPool">-</span></div>
+      <div class="stat"><span data-i18n="stSupply">Agent IDs minted</span><span id="stSupply">-</span></div>
+      <div class="stat"><span data-i18n="stTotalClaims">Total claims</span><span id="stTotalClaims">-</span></div>
+      <div class="stat"><span data-i18n="stOwner">Contract owner</span><span id="stOwner">-</span></div>
     </div>
-    <input id="addrInput" type="text" placeholder="0x... your Agentic Wallet address">
-    <button id="addrBtn">Check My Address</button>
-    <div id="addrResult" class="hidden" style="margin-top:12px;">
-      <div class="stat"><span>Holds an Agent ID?</span><span id="addrHolds">-</span></div>
-      <div class="stat"><span>Already claimed?</span><span id="addrClaimed">-</span></div>
-      <div class="stat"><span>Eligible to claim?</span><span id="addrEligible">-</span></div>
-    </div>
-    <div id="addrMsg" class="msg"></div>
+    <button class="ghost" id="statsBtn" type="button" style="margin-top:10px;" data-i18n="refresh">Refresh</button>
   </div>
 
-  <!-- 2. AI agent prompt: the way to claim -->
+  <!-- Recent claims (on-chain logs) -->
   <div class="card">
-    <h2>2. Claim With Your AI Agent</h2>
-    <div class="label" style="margin-bottom:10px;">
-      Copy this prompt into your Binance AI Pro / Agentic Wallet agent. It <strong>reads</strong> the blockchain, gives a one-line summary, and shows a claim preview.
+    <h2 data-i18n="claimsTitle">Recent Claims</h2>
+    <div class="label" data-i18n="claimsDesc">Public on-chain claim events from the AgentCredit contract. Only wallet addresses are shown, never names.</div>
+    <button class="ghost" id="claimsBtn" type="button" style="margin-top:10px;" data-i18n="loadClaims">Load recent claims</button>
+    <div id="claimsList" style="margin-top:8px;"></div>
+    <div id="claimsMsg" class="msg"></div>
+  </div>
+
+  <!-- 1. How it works -->
+  <div class="card">
+    <h2 data-i18n="howTitle">How It Works</h2>
+    <div class="steps">
+      <div class="step"><div class="num">1</div><div><strong data-i18n="how1t">Check</strong><span data-i18n="how1d">Paste your Agentic Wallet address. We read the chain to see if it holds an Agent ID.</span></div></div>
+      <div class="step"><div class="num">2</div><div><strong data-i18n="how2t">Ask your agent</strong><span data-i18n="how2d">Copy the prompt into your AI agent. It checks again and shows a claim preview.</span></div></div>
+      <div class="step"><div class="num">3</div><div><strong data-i18n="how3t">Confirm manually</strong><span data-i18n="how3d">Nothing is sent until you type "confirm". One claim per Agent ID wallet.</span></div></div>
+    </div>
+  </div>
+
+  <!-- 2. Check an address (read-only) -->
+  <div class="card">
+    <h2 data-i18n="s1Title">1. Check Your Agent Wallet</h2>
+    <div class="label" data-i18n-html="s1Desc">
+      Agent ID is held by your Agentic Wallet, which cannot connect to websites. Paste <strong>your own</strong> Agentic Wallet address to see if it can claim. This only reads the blockchain on BNB Smart Chain (Chain ID 56).
+    </div>
+    <input id="addrInput" type="text" data-i18n-ph="placeholder" placeholder="0x... your Agentic Wallet address" autocomplete="off" spellcheck="false">
+    <button id="addrBtn" type="button" data-i18n="checkBtn">Check My Address</button>
+    <div id="recentBox" class="hidden" style="margin-top:10px;">
+      <div class="label" data-i18n="recent">Recently checked on this device:</div>
+      <div class="chips" id="recentChips"></div>
+    </div>
+    <div id="addrResult" class="hidden" style="margin-top:12px;">
+      <div class="stat"><span data-i18n="holds">Holds an Agent ID?</span><span id="addrHolds">-</span></div>
+      <div class="stat"><span data-i18n="claimedQ">Already claimed?</span><span id="addrClaimed">-</span></div>
+      <div class="stat"><span data-i18n="eligibleQ">Eligible to claim?</span><span id="addrEligible">-</span></div>
+      <div class="row">
+        <button class="ghost" id="shareBtn" type="button" data-i18n="shareX">Share on X</button>
+        <button class="ghost" id="linkBtn" type="button" data-i18n="copyLink">Copy result link</button>
+      </div>
+    </div>
+    <div id="addrMsg" class="msg"></div>
+
+    <div id="previewBox" class="preview hidden">
+      <strong style="color:var(--yellow);font-size:14px;" data-i18n="pvTitle">Claim preview (read-only)</strong>
+      <div class="label" style="margin:6px 0;" data-i18n="pvDesc">This is what your agent will show you. Confirm it manually in your agent.</div>
+      <div class="stat"><span data-i18n="pvNet">Network</span><span>BNB Smart Chain (56)</span></div>
+      <div class="stat"><span data-i18n="pvTo">To</span><span id="pvTo"></span></div>
+      <div class="stat"><span data-i18n="pvFn">Function</span><span>claimCredit()</span></div>
+      <div class="stat"><span data-i18n="pvData">Data</span><span id="pvData"></span></div>
+      <div class="stat"><span data-i18n="pvValue">Value</span><span>0 BNB</span></div>
+      <button class="ghost" id="pvCopyBtn" type="button" style="margin-top:10px;" data-i18n="pvCopy">Copy preview</button>
+    </div>
+  </div>
+
+  <!-- 3. AI agent prompt -->
+  <div class="card">
+    <h2 data-i18n="s2Title">2. Claim With Your AI Agent</h2>
+    <div class="label" style="margin-bottom:10px;" data-i18n-html="s2Desc">
+      Copy this prompt into your Agentic Wallet agent. It <strong>reads</strong> the blockchain, gives a one-line summary, and shows a claim preview.
       Nothing is sent until you type "confirm". It never signs on its own.
     </div>
     <div class="prompt-box" id="promptText">You are my on-chain assistant for the "AgentCredit" app on BNB Smart Chain Mainnet (Chain ID 56).
@@ -95,49 +187,60 @@ Wallet to check: my Agentic Wallet address (use my own address)
 Do these read-only checks:
 1. On the Agent ID contract 0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F, call balanceOf(wallet). If the result is greater than 0, I hold an Agent ID.
 2. On the AgentCredit contract 0x461933673C2802489d5Dc9372619C7a203C7411E, call hasClaimed(wallet).
+3. On the same AgentCredit contract, call paused(). If it returns true, claims are paused.
 
 Then reply with exactly ONE line in this format:
-AgentCredit check: Agent ID = YES/NO | Already claimed = YES/NO | Eligible = YES/NO
-(Eligible = YES only if I hold an Agent ID and have not claimed yet.)
+AgentCredit check: Agent ID = YES/NO | Already claimed = YES/NO | Paused = YES/NO | Eligible = YES/NO
+(Eligible = YES only if I hold an Agent ID, have not claimed yet, and claims are not paused.)
 
 STRICT RULES:
 - Do NOT send, sign, approve or auto-submit any transaction on your own.
 - Never ask for or use my private key or seed phrase.
 - If I am eligible, show me a transaction preview first: network BNB Smart Chain (56), to 0x461933673C2802489d5Dc9372619C7a203C7411E, function claimCredit() (data 0x1333db2e), value 0 BNB, plus the estimated gas. Then STOP and wait. Only send it after I type "confirm". Never send it automatically. Any on-chain transaction needs my manual confirmation.
 - Do not promise any income, profit or financial return. This is only a verified credit/grant check.</div>
-    <button id="copyPromptBtn" style="margin-top:12px;">Copy Prompt</button>
+    <button id="copyPromptBtn" type="button" style="margin-top:12px;" data-i18n="copyPrompt">Copy Prompt</button>
     <div id="copyMsg" class="msg"></div>
   </div>
 
-  <!-- 3. Demo mode for judges -->
+  <!-- 5. Why Agent ID -->
+  <div class="card why">
+    <h2 data-i18n="whyTitle">Why Agent ID?</h2>
+    <ul>
+      <li data-i18n-html="why1"><strong>Sybil resistance:</strong> one non-transferable Agent ID per user, so one person cannot farm many claims.</li>
+      <li data-i18n-html="why2"><strong>Agent-native:</strong> the whole flow works through an AI agent, with a manual confirmation before any transaction.</li>
+      <li data-i18n-html="why3"><strong>Transparent:</strong> open-source contract on BscScan with owner permissions disclosed.</li>
+    </ul>
+  </div>
+
+  <!-- 6. FAQ -->
   <div class="card">
-    <h2>3. Demo Mode (for judges)</h2>
-    <div class="label" style="margin-bottom:10px;">Try the full flow with a sample name.ai Agent ID. Simulated only: no wallet, no BNB, no gas.</div>
-    <button id="demoBtn">Run Demo</button>
-    <div id="demoCard" class="hidden" style="margin-top:14px;">
-      <span class="badge">DEMO MODE</span>
-      <div class="stat" style="margin-top:8px;"><span>Agent ID</span><span>alice.ai (sample)</span></div>
-      <div class="stat"><span>Holds an Agent ID?</span><span class="yes">Yes</span></div>
-      <div class="stat"><span>Already claimed?</span><span id="demoClaimed" class="yes">No</span></div>
-      <div class="stat"><span>Total claims so far</span><span id="demoTotal">41</span></div>
-      <button id="demoClaimBtn" style="margin-top:12px;">Claim Credit (Demo)</button>
-      <div id="demoMsg" class="msg"></div>
-    </div>
+    <h2 data-i18n="faqTitle">FAQ</h2>
+    <details><summary data-i18n="faq1q">Why can't I connect my wallet here?</summary><p data-i18n="faq1a">Agentic Wallets cannot connect to websites. That is a safety feature. This site only reads the chain, and your agent does the claiming after your manual confirmation.</p></details>
+    <details><summary data-i18n="faq2q">Does it cost anything?</summary><p data-i18n="faq2a">Checking is free. A real claim is a BNB Smart Chain transaction and needs a small gas fee in BNB.</p></details>
+    <details><summary data-i18n="faq3q">I am not eligible. Why?</summary><p data-i18n="faq3a">Either the address holds no Agent ID, it has already claimed, or claims are paused. Agent IDs are claimed in the Binance app (Wallet, then the Agent ID banner).</p></details>
+    <details><summary data-i18n="faq4q">Can I claim twice?</summary><p data-i18n="faq4a">No. The contract allows one claim per Agent ID wallet.</p></details>
   </div>
 
   <!-- Risk / disclaimer -->
   <div class="card disclaimer">
-    <h2>Important Notice &amp; Risks</h2>
+    <h2 data-i18n="discTitle">Important Notice &amp; Risks</h2>
     <ul>
-      <li><strong>Not an investment.</strong> AgentCredit is a one-time Sybil-Proof Verified Credit / Grant check. It offers no income, profit or financial return.</li>
-      <li><strong>Real transaction.</strong> A real claim is a transaction on BNB Smart Chain Mainnet (Chain ID 56). It may cost a small gas fee in BNB and cannot be undone. Use Demo Mode to try it for free.</li>
-      <li><strong>One claim per Agent ID wallet.</strong> Agent ID (name.ai) is non-transferable. The grant amount is set by the contract owner and may be 0.</li>
-      <li><strong>Owner permissions.</strong> The contract owner can change the grant amount, pause new claims, withdraw unused funds and transfer ownership. The owner cannot claim for others or edit who has claimed.</li>
-      <li><strong>Hackathon project, not audited.</strong> Use at your own risk.</li>
-      <li><strong>Stay safe.</strong> Never share your private key or seed phrase. AI agents must never auto-sign: you confirm every transaction manually.</li>
-      <li><strong>Verify the contract:</strong> <a href="https://bscscan.com/address/0x461933673C2802489d5Dc9372619C7a203C7411E" target="_blank" rel="noopener">AgentCredit on BscScan</a></li>
+      <li data-i18n-html="d1"><strong>Not an investment.</strong> AgentCredit is a one-time Sybil-Proof Verified Credit / Grant check. It offers no income, profit or financial return.</li>
+      <li data-i18n-html="d2"><strong>Real transaction.</strong> A real claim is a transaction on BNB Smart Chain Mainnet (Chain ID 56). It may cost a small gas fee in BNB and cannot be undone.</li>
+      <li data-i18n-html="d3"><strong>One claim per Agent ID wallet.</strong> Agent ID (name.ai) is non-transferable. The grant amount is set by the contract owner and may be 0.</li>
+      <li data-i18n-html="d4"><strong>Owner permissions.</strong> The contract owner can change the grant amount, pause new claims, withdraw unused funds and transfer ownership. The owner cannot claim for others or edit who has claimed.</li>
+      <li data-i18n-html="d5"><strong>Hackathon project, not audited.</strong> Use at your own risk.</li>
+      <li data-i18n-html="d6"><strong>Stay safe.</strong> Never share your private key or seed phrase. AI agents must never auto-sign: you confirm every transaction manually.</li>
+      <li><strong data-i18n="d7">Verify the contract:</strong> <a href="https://bscscan.com/address/0x461933673C2802489d5Dc9372619C7a203C7411E" target="_blank" rel="noopener">AgentCredit on BscScan</a></li>
     </ul>
   </div>
+
+  <footer>
+    <a href="https://bscscan.com/address/0x461933673C2802489d5Dc9372619C7a203C7411E" target="_blank" rel="noopener">AgentCredit</a>
+    <a href="https://bscscan.com/address/0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F" target="_blank" rel="noopener">Agent ID</a>
+    <a href="https://www.binance.com/en/support/announcement/detail/95f5dbe0ea674a48a739b59e046648bf" target="_blank" rel="noopener">Hackathon</a>
+    <div style="margin-top:8px;">#BinanceWalletHackathon #AgenticWallet</div>
+  </footer>
 
 </div>
 
@@ -145,98 +248,367 @@ STRICT RULES:
   // ------------------- Settings -------------------
   const CONTRACT_ADDRESS = "0x461933673C2802489d5Dc9372619C7a203C7411E";  // AgentCredit (BNB Smart Chain Mainnet)
   const AGENT_ID_ADDRESS = "0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F";  // official Agent ID ERC-721
-  const RPC_URL = "https://bsc-dataseed.binance.org/";
-  const SEL = { balanceOf: "0x70a08231", hasClaimed: "0x73b2e80e", paused: "0x5c975abb" };
+  const RPC_URLS = [
+    "https://bsc-dataseed.binance.org/",
+    "https://bsc-dataseed1.defibit.io/",
+    "https://bsc-rpc.publicnode.com"
+  ];
+  const CLAIM_DATA = "0x1333db2e";                                         // claimCredit()
+  // OPTIONAL but recommended for "Recent Claims":
+  // DEPLOY_BLOCK = block number where AgentCredit was deployed (BscScan > contract > creation tx > Block). 0 = scan only the latest ~200k blocks.
+  // CLAIM_TOPIC  = topic0 of the claim event (BscScan > any claim tx > Logs tab > Topics[0]), e.g. "0xabc...". Empty = show all contract logs.
+  const DEPLOY_BLOCK = 0;
+  const CLAIM_TOPIC = "";
+  const SEL = {
+    balanceOf: "0x70a08231", hasClaimed: "0x73b2e80e", paused: "0x5c975abb",
+    totalSupply: "0x18160ddd", owner: "0x8da5cb5b",
+    // OPTIONAL: if your contract has a public counter (e.g. totalClaims()), put its 4-byte selector here, like "0xabcdef12".
+    totalClaims: ""
+  };
+
+  // ------------------- Translations -------------------
+  const T = {
+    en: {
+      tagline: "Sybil-Proof Verified Credit / Grant powered by Agent ID",
+      statsTitle: "Live On-Chain Status", statsDesc: "Read directly from BNB Smart Chain. No wallet needed.",
+      stNetwork: "Network (latest block)", stClaims: "Claims", stPool: "Contract balance", stSupply: "Agent IDs minted",
+      stTotalClaims: "Total claims", stOwner: "Contract owner", refresh: "Refresh",
+      active: "Open", pausedTxt: "Paused", na: "n/a",
+      howTitle: "How It Works",
+      how1t: "Check", how1d: "Paste your Agentic Wallet address. We read the chain to see if it holds an Agent ID.",
+      how2t: "Ask your agent", how2d: "Copy the prompt into your AI agent. It checks again and shows a claim preview.",
+      how3t: "Confirm manually", how3d: "Nothing is sent until you type \"confirm\". One claim per Agent ID wallet.",
+      s1Title: "1. Check Your Agent Wallet",
+      s1Desc: "Agent ID is held by your Agentic Wallet, which cannot connect to websites. Paste <strong>your own</strong> Agentic Wallet address to see if it can claim. This only reads the blockchain on BNB Smart Chain (Chain ID 56).",
+      placeholder: "0x... your Agentic Wallet address", checkBtn: "Check My Address",
+      recent: "Recently checked on this device:",
+      holds: "Holds an Agent ID?", claimedQ: "Already claimed?", eligibleQ: "Eligible to claim?", yes: "Yes", no: "No",
+      shareX: "Share on X", copyLink: "Copy result link", linkCopied: "Link copied!",
+      errAddr: "Please paste a valid wallet address (starts with 0x, 42 characters).",
+      reading: "Reading the blockchain...",
+      okEligible: "Eligible. To claim, use step 2 with your AI agent. You confirm manually.",
+      infoClaimed: "This address has already claimed.",
+      errNoId: "No Agent ID found at this address.",
+      errPaused: "Claims are paused by the owner.",
+      errRead: "Could not read the blockchain: ",
+      pvTitle: "Claim preview (read-only)", pvDesc: "This is what your agent will show you. Confirm it manually in your agent.",
+      pvNet: "Network", pvTo: "To", pvFn: "Function", pvData: "Data", pvValue: "Value", pvCopy: "Copy preview", pvCopied: "Preview copied!",
+      s2Title: "2. Claim With Your AI Agent",
+      s2Desc: "Copy this prompt into your Agentic Wallet agent. It <strong>reads</strong> the blockchain, gives a one-line summary, and shows a claim preview. Nothing is sent until you type \"confirm\". It never signs on its own.",
+      copyPrompt: "Copy Prompt", promptCopied: "Prompt copied! Paste it into your AI agent.",
+      selectFallback: "Text selected. Press Ctrl+C (or Cmd+C) to copy it.",
+      claimsTitle: "Recent Claims", claimsDesc: "Public on-chain claim events from the AgentCredit contract. Only wallet addresses are shown, never names.",
+      loadClaims: "Load recent claims", claimsLoading: "Scanning recent blocks...",
+      claimsNone: "No claim events found in the scanned blocks.", claimsScanned: "Blocks scanned: ", claimsErr: "Could not load claims: ",
+      whyTitle: "Why Agent ID?",
+      why1: "<strong>Sybil resistance:</strong> one non-transferable Agent ID per user, so one person cannot farm many claims.",
+      why2: "<strong>Agent-native:</strong> the whole flow works through an AI agent, with a manual confirmation before any transaction.",
+      why3: "<strong>Transparent:</strong> open-source contract on BscScan with owner permissions disclosed.",
+      faqTitle: "FAQ",
+      faq1q: "Why can't I connect my wallet here?",
+      faq1a: "Agentic Wallets cannot connect to websites. That is a safety feature. This site only reads the chain, and your agent does the claiming after your manual confirmation.",
+      faq2q: "Does it cost anything?", faq2a: "Checking is free. A real claim is a BNB Smart Chain transaction and needs a small gas fee in BNB.",
+      faq3q: "I am not eligible. Why?", faq3a: "Either the address holds no Agent ID, it has already claimed, or claims are paused. Agent IDs are claimed in the Binance app (Wallet, then the Agent ID banner).",
+      faq4q: "Can I claim twice?", faq4a: "No. The contract allows one claim per Agent ID wallet.",
+      discTitle: "Important Notice & Risks",
+      d1: "<strong>Not an investment.</strong> AgentCredit is a one-time Sybil-Proof Verified Credit / Grant check. It offers no income, profit or financial return.",
+      d2: "<strong>Real transaction.</strong> A real claim is a transaction on BNB Smart Chain Mainnet (Chain ID 56). It may cost a small gas fee in BNB and cannot be undone.",
+      d3: "<strong>One claim per Agent ID wallet.</strong> Agent ID (name.ai) is non-transferable. The grant amount is set by the contract owner and may be 0.",
+      d4: "<strong>Owner permissions.</strong> The contract owner can change the grant amount, pause new claims, withdraw unused funds and transfer ownership. The owner cannot claim for others or edit who has claimed.",
+      d5: "<strong>Hackathon project, not audited.</strong> Use at your own risk.",
+      d6: "<strong>Stay safe.</strong> Never share your private key or seed phrase. AI agents must never auto-sign: you confirm every transaction manually.",
+      d7: "Verify the contract:",
+      shareText: "I checked my Agent ID eligibility on AgentCredit, a Sybil-proof verified credit check on BNB Chain. #BinanceWalletHackathon #AgenticWallet"
+    },
+    bn: {
+      tagline: "Agent ID দিয়ে চালিত Sybil-Proof ভেরিফাইড ক্রেডিট / গ্রান্ট",
+      statsTitle: "লাইভ অন-চেইন স্ট্যাটাস", statsDesc: "সরাসরি BNB Smart Chain থেকে পড়া হয়। ওয়ালেট লাগে না।",
+      stNetwork: "নেটওয়ার্ক (সর্বশেষ ব্লক)", stClaims: "ক্লেইম", stPool: "কন্ট্রাক্টের ব্যালেন্স", stSupply: "মোট Agent ID",
+      stTotalClaims: "মোট ক্লেইম", stOwner: "কন্ট্রাক্ট ওনার", refresh: "রিফ্রেশ",
+      active: "চালু", pausedTxt: "বন্ধ (Paused)", na: "পাওয়া যায়নি",
+      howTitle: "কীভাবে কাজ করে",
+      how1t: "চেক করুন", how1d: "আপনার Agentic Wallet অ্যাড্রেস দিন। আমরা চেইন পড়ে দেখি Agent ID আছে কি না।",
+      how2t: "এজেন্টকে বলুন", how2d: "প্রম্পটটি আপনার AI এজেন্টে কপি করুন। সে আবার চেক করে ক্লেইম প্রিভিউ দেখাবে।",
+      how3t: "নিজে কনফার্ম করুন", how3d: "\"confirm\" না লেখা পর্যন্ত কিছু পাঠানো হয় না। প্রতি Agent ID ওয়ালেটে একবারই ক্লেইম।",
+      s1Title: "১. আপনার এজেন্ট ওয়ালেট চেক করুন",
+      s1Desc: "Agent ID আপনার Agentic Wallet-এ থাকে, যা ওয়েবসাইটে কানেক্ট হয় না। ক্লেইম করা যাবে কি না দেখতে <strong>নিজের</strong> Agentic Wallet অ্যাড্রেস পেস্ট করুন। এটি শুধু BNB Smart Chain (Chain ID 56) থেকে ডেটা পড়ে।",
+      placeholder: "0x... আপনার Agentic Wallet অ্যাড্রেস", checkBtn: "আমার অ্যাড্রেস চেক করুন",
+      recent: "এই ডিভাইসে সম্প্রতি চেক করা:",
+      holds: "Agent ID আছে?", claimedQ: "আগেই ক্লেইম করেছেন?", eligibleQ: "ক্লেইমের যোগ্য?", yes: "হ্যাঁ", no: "না",
+      shareX: "X-এ শেয়ার করুন", copyLink: "রেজাল্ট লিংক কপি", linkCopied: "লিংক কপি হয়েছে!",
+      errAddr: "সঠিক ওয়ালেট অ্যাড্রেস দিন (0x দিয়ে শুরু, মোট ৪২ অক্ষর)।",
+      reading: "ব্লকচেইন পড়া হচ্ছে...",
+      okEligible: "আপনি যোগ্য। ক্লেইম করতে ধাপ ২ অনুযায়ী আপনার AI এজেন্ট ব্যবহার করুন। কনফার্ম আপনি নিজে করবেন।",
+      infoClaimed: "এই অ্যাড্রেস আগেই ক্লেইম করেছে।",
+      errNoId: "এই অ্যাড্রেসে কোনো Agent ID পাওয়া যায়নি।",
+      errPaused: "ওনার ক্লেইম বন্ধ (pause) করে রেখেছেন।",
+      errRead: "ব্লকচেইন পড়া যায়নি: ",
+      pvTitle: "ক্লেইম প্রিভিউ (শুধু দেখার জন্য)", pvDesc: "আপনার এজেন্ট আপনাকে এটাই দেখাবে। এজেন্টে নিজে কনফার্ম করুন।",
+      pvNet: "নেটওয়ার্ক", pvTo: "প্রাপক কন্ট্রাক্ট", pvFn: "ফাংশন", pvData: "ডেটা", pvValue: "ভ্যালু", pvCopy: "প্রিভিউ কপি", pvCopied: "প্রিভিউ কপি হয়েছে!",
+      s2Title: "২. AI এজেন্ট দিয়ে ক্লেইম করুন",
+      s2Desc: "এই প্রম্পটটি আপনার Agentic Wallet এজেন্টে কপি করুন। সে ব্লকচেইন <strong>পড়ে</strong>, এক লাইনে সারাংশ দেয় এবং ক্লেইম প্রিভিউ দেখায়। \"confirm\" না লেখা পর্যন্ত কিছু পাঠানো হয় না। সে নিজে থেকে সাইন করে না।",
+      copyPrompt: "প্রম্পট কপি করুন", promptCopied: "প্রম্পট কপি হয়েছে! আপনার AI এজেন্টে পেস্ট করুন।",
+      selectFallback: "লেখা সিলেক্ট হয়েছে। কপি করতে Ctrl+C (বা Cmd+C) চাপুন।",
+      claimsTitle: "সাম্প্রতিক ক্লেইম", claimsDesc: "AgentCredit কন্ট্রাক্টের পাবলিক অন-চেইন ক্লেইম ইভেন্ট। শুধু ওয়ালেট অ্যাড্রেস দেখানো হয়, কোনো নাম নয়।",
+      loadClaims: "সাম্প্রতিক ক্লেইম লোড করুন", claimsLoading: "সাম্প্রতিক ব্লক স্ক্যান করা হচ্ছে...",
+      claimsNone: "স্ক্যান করা ব্লকগুলোতে কোনো ক্লেইম ইভেন্ট পাওয়া যায়নি।", claimsScanned: "স্ক্যান করা ব্লক: ", claimsErr: "ক্লেইম লোড করা যায়নি: ",
+      whyTitle: "কেন Agent ID?",
+      why1: "<strong>Sybil প্রতিরোধ:</strong> প্রতি ইউজারের একটিই নন-ট্রান্সফারেবল Agent ID, তাই একজন বহু ক্লেইম করতে পারে না।",
+      why2: "<strong>এজেন্ট-নেটিভ:</strong> পুরো ফ্লো AI এজেন্টের মাধ্যমে চলে এবং যেকোনো ট্রানজ্যাকশনের আগে নিজে কনফার্ম করতে হয়।",
+      why3: "<strong>স্বচ্ছ:</strong> BscScan-এ ওপেন-সোর্স কন্ট্রাক্ট, ওনারের ক্ষমতা প্রকাশ করা আছে।",
+      faqTitle: "সাধারণ প্রশ্ন",
+      faq1q: "এখানে ওয়ালেট কানেক্ট করতে পারছি না কেন?",
+      faq1a: "Agentic Wallet ওয়েবসাইটে কানেক্ট হয় না, এটা নিরাপত্তার জন্য। এই সাইট শুধু চেইন পড়ে, আর ক্লেইম আপনার এজেন্ট করে আপনার ম্যানুয়াল কনফার্মেশনের পর।",
+      faq2q: "এতে কি খরচ আছে?", faq2a: "চেক করা ফ্রি। আসল ক্লেইম একটি BNB Smart Chain ট্রানজ্যাকশন, তাই সামান্য BNB গ্যাস ফি লাগে।",
+      faq3q: "আমি যোগ্য নই কেন?", faq3a: "হয় অ্যাড্রেসে Agent ID নেই, নয়তো আগেই ক্লেইম করেছে, অথবা ক্লেইম বন্ধ আছে। Agent ID নিতে হয় Binance অ্যাপে (Wallet, তারপর Agent ID ব্যানার)।",
+      faq4q: "দুইবার ক্লেইম করা যাবে?", faq4a: "না। কন্ট্রাক্ট প্রতি Agent ID ওয়ালেটে একবারই ক্লেইম অনুমোদন করে।",
+      discTitle: "গুরুত্বপূর্ণ নোটিশ ও ঝুঁকি",
+      d1: "<strong>এটি বিনিয়োগ নয়।</strong> AgentCredit একবারের Sybil-Proof ভেরিফাইড ক্রেডিট / গ্রান্ট চেক। কোনো আয়, মুনাফা বা রিটার্নের প্রতিশ্রুতি নেই।",
+      d2: "<strong>আসল ট্রানজ্যাকশন।</strong> আসল ক্লেইম BNB Smart Chain Mainnet (Chain ID 56)-এ একটি ট্রানজ্যাকশন। সামান্য BNB গ্যাস ফি লাগতে পারে এবং ফেরত নেওয়া যায় না।",
+      d3: "<strong>প্রতি Agent ID ওয়ালেটে একটি ক্লেইম।</strong> Agent ID (name.ai) ট্রান্সফার করা যায় না। গ্রান্টের পরিমাণ কন্ট্রাক্ট ওনার ঠিক করেন এবং তা ০ও হতে পারে।",
+      d4: "<strong>ওনারের ক্ষমতা।</strong> ওনার গ্রান্টের পরিমাণ বদলাতে, নতুন ক্লেইম বন্ধ করতে, অব্যবহৃত ফান্ড তুলতে এবং ওনারশিপ হস্তান্তর করতে পারেন। ওনার অন্যের হয়ে ক্লেইম করতে বা কে ক্লেইম করেছে তা বদলাতে পারেন না।",
+      d5: "<strong>হ্যাকাথন প্রজেক্ট, অডিট করা নয়।</strong> নিজ ঝুঁকিতে ব্যবহার করুন।",
+      d6: "<strong>নিরাপদ থাকুন।</strong> প্রাইভেট কী বা সিড ফ্রেজ কারো সাথে শেয়ার করবেন না। AI এজেন্ট কখনো অটো-সাইন করবে না: প্রতিটি ট্রানজ্যাকশন আপনি নিজে কনফার্ম করবেন।",
+      d7: "কন্ট্রাক্ট যাচাই করুন:",
+      shareText: "আমি AgentCredit-এ আমার Agent ID-র যোগ্যতা চেক করেছি, BNB Chain-এর একটি Sybil-proof ভেরিফাইড ক্রেডিট চেক। #BinanceWalletHackathon #AgenticWallet"
+    }
+  };
+
+  let lang = "en";
+  try { lang = localStorage.getItem("lang") || ((navigator.language || "").startsWith("bn") ? "bn" : "en"); } catch (e) {}
+  function t(k) { return (T[lang] && T[lang][k]) || T.en[k] || k; }
+  function tr(el) { const k = el.getAttribute("data-i18n"); if (k) el.textContent = t(k); }
+
+  function applyLang() {
+    document.documentElement.lang = lang;
+    document.querySelectorAll("[data-i18n]").forEach(tr);
+    document.querySelectorAll("[data-i18n-html]").forEach(el => { el.innerHTML = t(el.getAttribute("data-i18n-html")); });
+    document.querySelectorAll("[data-i18n-ph]").forEach(el => { el.placeholder = t(el.getAttribute("data-i18n-ph")); });
+    document.querySelectorAll(".msg[data-key]").forEach(el => { el.textContent = t(el.dataset.key) + (el.dataset.extra || ""); });
+    document.getElementById("langEn").classList.toggle("active", lang === "en");
+    document.getElementById("langBn").classList.toggle("active", lang === "bn");
+  }
+  function setLang(l) { lang = l; try { localStorage.setItem("lang", l); } catch (e) {} applyLang(); }
+  document.getElementById("langEn").addEventListener("click", () => setLang("en"));
+  document.getElementById("langBn").addEventListener("click", () => setLang("bn"));
 
   // ------------------- Helpers -------------------
-  function showIn(box, text, type) { box.textContent = text; box.className = "msg show " + type; }
+  function showKey(box, key, type, extra) {
+    box.dataset.key = key; box.dataset.extra = extra || "";
+    box.textContent = t(key) + (extra || ""); box.className = "msg show " + type;
+  }
+  function hideMsg(box) { box.className = "msg"; delete box.dataset.key; }
   function pad(addr) { return addr.toLowerCase().replace("0x", "").padStart(64, "0"); }
-  function setYesNo(el, isYes) { el.textContent = isYes ? "Yes" : "No"; el.className = isYes ? "yes" : "no"; }
-
-  // Read-only call to a public BNB Smart Chain node (no wallet needed, no gas)
-  async function rpcCall(to, data) {
-    const res = await fetch(RPC_URL, {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_call", params: [{ to: to, data: data }, "latest"] })
-    });
-    const j = await res.json();
-    if (j.error) throw new Error(j.error.message);
-    return j.result;
+  function setYesNo(el, isYes, invert) {
+    el.setAttribute("data-i18n", isYes ? "yes" : "no");
+    const good = invert ? !isYes : isYes;
+    el.className = good ? "yes" : "no"; tr(el);
+  }
+  function short(a) { return a.slice(0, 6) + "..." + a.slice(-4); }
+  function isAddr(a) { return /^0x[0-9a-fA-F]{40}$/.test(a); }
+  async function copyText(text) {
+    try { await navigator.clipboard.writeText(text); return true; } catch (e) { return false; }
   }
 
-  // ------------------- 1. Check an address -------------------
-  document.getElementById("addrBtn").addEventListener("click", async () => {
-    const box = document.getElementById("addrMsg");
-    const result = document.getElementById("addrResult");
-    const addr = document.getElementById("addrInput").value.trim();
-    box.className = "msg"; result.classList.add("hidden");
-
-    if (!/^0x[0-9a-fA-F]{40}$/.test(addr)) {
-      showIn(box, "Please paste a valid wallet address (starts with 0x, 42 characters).", "error");
-      return;
+  // Read-only JSON-RPC with fallback nodes (no wallet, no gas)
+  async function rpc(method, params) {
+    let lastErr;
+    for (const url of RPC_URLS) {
+      try {
+        const ctl = new AbortController(); const timer = setTimeout(() => ctl.abort(), 8000);
+        const res = await fetch(url, {
+          method: "POST", headers: { "Content-Type": "application/json" }, signal: ctl.signal,
+          body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: method, params: params })
+        });
+        clearTimeout(timer);
+        const j = await res.json();
+        if (j.error) throw new Error(j.error.message);
+        return j.result;
+      } catch (e) { lastErr = e; }
     }
+    throw lastErr;
+  }
+  function rpcCall(to, data) { return rpc("eth_call", [{ to: to, data: data }, "latest"]); }
+
+  // ------------------- 0. Live stats -------------------
+  function fmtBNB(wei) {
+    const base = 10n ** 18n;
+    const frac = (wei % base).toString().padStart(18, "0").slice(0, 4);
+    return (wei / base).toString() + "." + frac + " BNB";
+  }
+  function setStat(id, text, cls, key) {
+    const el = document.getElementById(id);
+    if (key) { el.setAttribute("data-i18n", key); tr(el); } else { el.removeAttribute("data-i18n"); el.textContent = text; }
+    el.className = cls || "";
+  }
+  function setNA(id) { setStat(id, "", "", "na"); }
+
+  async function loadStats() {
+    ["stBlock", "stPaused", "stPool", "stSupply", "stTotalClaims", "stOwner"].forEach(id => setStat(id, "...", ""));
+    const jobs = [
+      (async () => { setStat("stBlock", "#" + Number(BigInt(await rpc("eth_blockNumber", []))).toLocaleString(), "yes"); })(),
+      (async () => { const p = BigInt(await rpcCall(CONTRACT_ADDRESS, SEL.paused)) === 1n; setStat("stPaused", "", p ? "warn" : "yes", p ? "pausedTxt" : "active"); })(),
+      (async () => { setStat("stPool", fmtBNB(BigInt(await rpc("eth_getBalance", [CONTRACT_ADDRESS, "latest"]))), ""); })(),
+      (async () => { setStat("stSupply", BigInt(await rpcCall(AGENT_ID_ADDRESS, SEL.totalSupply)).toString(), ""); })(),
+      (async () => {
+        if (!SEL.totalClaims) { setNA("stTotalClaims"); return; }
+        setStat("stTotalClaims", BigInt(await rpcCall(CONTRACT_ADDRESS, SEL.totalClaims)).toString(), "");
+      })(),
+      (async () => {
+        const raw = await rpcCall(CONTRACT_ADDRESS, SEL.owner);
+        const o = "0x" + raw.slice(-40);
+        const el = document.getElementById("stOwner"); el.removeAttribute("data-i18n"); el.className = "";
+        el.innerHTML = '<a target="_blank" rel="noopener" href="https://bscscan.com/address/' + o + '">' + short(o) + "</a>";
+      })()
+    ];
+    const ids = ["stBlock", "stPaused", "stPool", "stSupply", "stTotalClaims", "stOwner"];
+    const results = await Promise.allSettled(jobs);
+    results.forEach((r, i) => { if (r.status === "rejected") setNA(ids[i]); });
+  }
+  document.getElementById("statsBtn").addEventListener("click", loadStats);
+
+  // ------------------- 1. Check an address -------------------
+  const addrInput = document.getElementById("addrInput");
+  const addrMsg = document.getElementById("addrMsg");
+  const addrResult = document.getElementById("addrResult");
+  const previewBox = document.getElementById("previewBox");
+  let lastChecked = "", lastEligible = false;
+
+  function getRecent() { try { return JSON.parse(localStorage.getItem("recent") || "[]"); } catch (e) { return []; } }
+  function saveRecent(a) {
     try {
-      showIn(box, "Reading the blockchain...", "info");
+      const list = [a].concat(getRecent().filter(x => x.toLowerCase() !== a.toLowerCase())).slice(0, 3);
+      localStorage.setItem("recent", JSON.stringify(list));
+    } catch (e) {}
+    renderRecent();
+  }
+  function renderRecent() {
+    const list = getRecent(), box = document.getElementById("recentBox"), chips = document.getElementById("recentChips");
+    chips.innerHTML = "";
+    list.forEach(a => {
+      const c = document.createElement("button");
+      c.type = "button"; c.className = "chip"; c.textContent = short(a);
+      c.addEventListener("click", () => { addrInput.value = a; checkAddress(); });
+      chips.appendChild(c);
+    });
+    box.classList.toggle("hidden", list.length === 0);
+  }
+
+  async function checkAddress() {
+    const addr = addrInput.value.trim();
+    hideMsg(addrMsg); addrResult.classList.add("hidden"); previewBox.classList.add("hidden");
+    if (!isAddr(addr)) { showKey(addrMsg, "errAddr", "error"); return; }
+    try {
+      showKey(addrMsg, "reading", "info");
       const user = pad(addr);
-      const bal = BigInt(await rpcCall(AGENT_ID_ADDRESS, SEL.balanceOf + user));
-      const claimed = BigInt(await rpcCall(CONTRACT_ADDRESS, SEL.hasClaimed + user)) === 1n;
-      const paused = BigInt(await rpcCall(CONTRACT_ADDRESS, SEL.paused)) === 1n;
-      const holds = bal > 0n;
+      const [bal, claimedRaw, pausedRaw] = await Promise.all([
+        rpcCall(AGENT_ID_ADDRESS, SEL.balanceOf + user),
+        rpcCall(CONTRACT_ADDRESS, SEL.hasClaimed + user),
+        rpcCall(CONTRACT_ADDRESS, SEL.paused)
+      ]);
+      const holds = BigInt(bal) > 0n;
+      const claimed = BigInt(claimedRaw) === 1n;
+      const paused = BigInt(pausedRaw) === 1n;
       const eligible = holds && !claimed && !paused;
 
       setYesNo(document.getElementById("addrHolds"), holds);
-      const c = document.getElementById("addrClaimed");
-      c.textContent = claimed ? "Yes" : "No"; c.className = claimed ? "no" : "yes";
+      setYesNo(document.getElementById("addrClaimed"), claimed, true);
       setYesNo(document.getElementById("addrEligible"), eligible);
-      result.classList.remove("hidden");
+      addrResult.classList.remove("hidden");
+      lastChecked = addr; lastEligible = eligible;
+      saveRecent(addr);
+      try { history.replaceState(null, "", "?addr=" + addr); } catch (e) {}
 
-      if (eligible) showIn(box, "Eligible. To claim, use step 2 with your AI agent. You confirm manually.", "ok");
-      else if (claimed) showIn(box, "This address has already claimed.", "info");
-      else if (!holds) showIn(box, "No Agent ID found at this address.", "error");
-      else if (paused) showIn(box, "Claims are paused by the owner.", "error");
+      if (eligible) {
+        showKey(addrMsg, "okEligible", "ok");
+        document.getElementById("pvTo").textContent = CONTRACT_ADDRESS;
+        document.getElementById("pvData").textContent = CLAIM_DATA;
+        previewBox.classList.remove("hidden");
+      }
+      else if (claimed) showKey(addrMsg, "infoClaimed", "info");
+      else if (!holds) showKey(addrMsg, "errNoId", "error");
+      else if (paused) showKey(addrMsg, "errPaused", "error");
     } catch (err) {
-      showIn(box, "Could not read the blockchain: " + (err.message || err), "error");
+      showKey(addrMsg, "errRead", "error", (err && err.message) || String(err));
     }
+  }
+  document.getElementById("addrBtn").addEventListener("click", checkAddress);
+  addrInput.addEventListener("keydown", e => { if (e.key === "Enter") checkAddress(); });
+
+  document.getElementById("shareBtn").addEventListener("click", () => {
+    const url = location.origin + location.pathname;
+    window.open("https://twitter.com/intent/tweet?text=" + encodeURIComponent(t("shareText")) + "&url=" + encodeURIComponent(url), "_blank", "noopener");
+  });
+  document.getElementById("linkBtn").addEventListener("click", async () => {
+    const link = location.origin + location.pathname + (lastChecked ? "?addr=" + lastChecked : "");
+    if (await copyText(link)) showKey(addrMsg, "linkCopied", "ok");
+  });
+  document.getElementById("pvCopyBtn").addEventListener("click", async () => {
+    const text = "Network: BNB Smart Chain (56)\nTo: " + CONTRACT_ADDRESS + "\nFunction: claimCredit()\nData: " + CLAIM_DATA + "\nValue: 0 BNB";
+    if (await copyText(text)) showKey(addrMsg, "pvCopied", "ok");
   });
 
   // ------------------- 2. Copy the AI prompt -------------------
   document.getElementById("copyPromptBtn").addEventListener("click", async () => {
     const el = document.getElementById("promptText");
     const box = document.getElementById("copyMsg");
-    try {
-      await navigator.clipboard.writeText(el.textContent);
-      showIn(box, "Prompt copied! Paste it into your AI agent.", "ok");
-    } catch (e) {
+    if (await copyText(el.textContent)) showKey(box, "promptCopied", "ok");
+    else {
       const range = document.createRange(); range.selectNodeContents(el);
       const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
-      showIn(box, "Text selected. Press Ctrl+C (or Cmd+C) to copy it.", "info");
+      showKey(box, "selectFallback", "info");
     }
   });
 
-  // ------------------- 3. Demo mode (simulated, no gas) -------------------
-  let demoClaimed = false, demoTotal = 41;
-  const demoCard = document.getElementById("demoCard");
-  const demoClaimBtn = document.getElementById("demoClaimBtn");
-  const demoMsg = document.getElementById("demoMsg");
-
-  function renderDemo() {
-    const c = document.getElementById("demoClaimed");
-    c.textContent = demoClaimed ? "Yes" : "No"; c.className = demoClaimed ? "no" : "yes";
-    document.getElementById("demoTotal").textContent = demoTotal;
-    demoClaimBtn.disabled = demoClaimed;
-    demoClaimBtn.textContent = demoClaimed ? "Already Claimed (Demo)" : "Claim Credit (Demo)";
+  // ------------------- Recent claims (eth_getLogs, scanned backwards) -------------------
+  async function loadClaims() {
+    const box = document.getElementById("claimsMsg"), list = document.getElementById("claimsList"), btn = document.getElementById("claimsBtn");
+    list.innerHTML = ""; btn.disabled = true;
+    showKey(box, "claimsLoading", "info");
+    try {
+      const latest = BigInt(await rpc("eth_blockNumber", []));
+      const floor = BigInt(DEPLOY_BLOCK);
+      const STEP = 4999n, MAX_CHUNKS = 40, WANT = 20;
+      let to = latest, found = [], scanned = 0n;
+      for (let i = 0; i < MAX_CHUNKS && found.length < WANT && to >= floor; i++) {
+        let from = to - STEP; if (from < floor) from = floor;
+        const f = { address: CONTRACT_ADDRESS, fromBlock: "0x" + from.toString(16), toBlock: "0x" + to.toString(16) };
+        if (CLAIM_TOPIC) f.topics = [CLAIM_TOPIC];
+        const logs = await rpc("eth_getLogs", [f]);
+        found = found.concat(logs.slice().reverse());
+        scanned += (to - from + 1n); to = from - 1n;
+      }
+      found = found.slice(0, WANT);
+      if (!found.length) { showKey(box, "claimsNone", "info"); }
+      else {
+        found.forEach(l => {
+          const who = (l.topics && l.topics[1] && /^0x0{24}[0-9a-fA-F]{40}$/.test(l.topics[1])) ? "0x" + l.topics[1].slice(-40) : null;
+          const tx = /^0x[0-9a-fA-F]{64}$/.test(l.transactionHash) ? l.transactionHash : "";
+          const blk = Number(BigInt(l.blockNumber)).toLocaleString();
+          const row = document.createElement("div"); row.className = "stat";
+          const left = document.createElement("span"), right = document.createElement("span");
+          if (who) { const a = document.createElement("a"); a.href = "https://bscscan.com/address/" + who; a.target = "_blank"; a.rel = "noopener"; a.textContent = short(who); left.appendChild(a); }
+          else left.textContent = "-";
+          if (tx) { const a = document.createElement("a"); a.href = "https://bscscan.com/tx/" + tx; a.target = "_blank"; a.rel = "noopener"; a.textContent = "tx #" + blk; right.appendChild(a); }
+          row.appendChild(left); row.appendChild(right); list.appendChild(row);
+        });
+        showKey(box, "claimsScanned", "ok", scanned.toString());
+      }
+    } catch (err) {
+      showKey(box, "claimsErr", "error", (err && err.message) || String(err));
+    }
+    btn.disabled = false;
   }
-  document.getElementById("demoBtn").addEventListener("click", () => {
-    demoCard.classList.remove("hidden"); demoMsg.className = "msg"; renderDemo();
-  });
-  demoClaimBtn.addEventListener("click", () => {
-    demoClaimBtn.disabled = true; demoClaimBtn.textContent = "Claiming (demo)...";
-    showIn(demoMsg, "Demo: sending a simulated transaction...", "info");
-    setTimeout(() => {
-      demoClaimed = true; demoTotal += 1; renderDemo();
-      showIn(demoMsg, "Demo success! Verified credit claimed for alice.ai. (No real transaction was made.)", "ok");
-    }, 1500);
-  });
+  document.getElementById("claimsBtn").addEventListener("click", loadClaims);
+
+  // ------------------- Start -------------------
+  applyLang();
+  renderRecent();
+  loadStats();
+  try {
+    const q = new URLSearchParams(location.search).get("addr");
+    if (q && isAddr(q)) { addrInput.value = q; checkAddress(); }
+  } catch (e) {}
 </script>
 </body>
 </html>
